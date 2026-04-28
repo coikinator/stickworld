@@ -8,178 +8,271 @@ body {
   margin: 0;
   overflow: hidden;
   font-family: Arial;
-  background: linear-gradient(135deg, #d9f0ff, #ffffff);
+  background: #dff2ff;
 }
 
-/* GAME CANVAS */
+/* CANVAS */
 canvas {
   display: block;
 }
 
-/* TOP BAR */
-#topbar {
+/* TOP UI */
+#ui {
   position: absolute;
   top: 10px;
   left: 10px;
   right: 10px;
-  height: 40px;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
 
+  padding: 10px 15px;
   background: rgba(255,255,255,0.6);
   backdrop-filter: blur(10px);
   border-radius: 12px;
-  padding: 0 15px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-}
-
-#username {
-  font-weight: bold;
-  color: #333;
 }
 
 /* CHAT */
 #chat {
   position: absolute;
-  bottom: 15px;
-  left: 15px;
-  width: 260px;
+  bottom: 10px;
+  left: 10px;
+  width: 240px;
 
   background: rgba(255,255,255,0.6);
   backdrop-filter: blur(10px);
   border-radius: 12px;
   padding: 10px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
 }
 
-#messages {
-  height: 120px;
+#msgs {
+  height: 100px;
   overflow-y: auto;
-  font-size: 13px;
-  margin-bottom: 8px;
+  font-size: 12px;
 }
 
 #msg {
   width: 100%;
-  padding: 8px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  outline: none;
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
 }
 
-/* INFO PANEL */
-#info {
+/* MOBILE CONTROLS */
+#controls {
   position: absolute;
-  top: 60px;
-  right: 15px;
-  width: 180px;
+  bottom: 20px;
+  right: 20px;
 
-  background: rgba(255,255,255,0.6);
-  backdrop-filter: blur(10px);
-  border-radius: 12px;
-  padding: 10px;
-  font-size: 13px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  display: none; /* default hidden */
+  grid-template-columns: 50px 50px 50px;
+  gap: 5px;
+}
+
+.btn {
+  width: 50px;
+  height: 50px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 10px;
+  text-align: center;
+  line-height: 50px;
+  user-select: none;
 }
 </style>
 </head>
 
 <body>
 
-<!-- TOP BAR -->
-<div id="topbar">
+<!-- UI -->
+<div id="ui">
   <div>🎮 StickWorld</div>
-  <div id="username">Loading...</div>
-</div>
 
-<!-- INFO -->
-<div id="info">
-  WASD = Move<br>
-  Chat = Enter<br>
-  Multiplayer Active
+  <div>
+    👤 <span id="name"></span> |
+    🪙 <span id="coins">0</span>
+  </div>
+
+  <button onclick="logout()">Logout</button>
 </div>
 
 <!-- CHAT -->
 <div id="chat">
-  <div id="messages"></div>
-  <input id="msg" placeholder="Type message...">
+  <div id="msgs"></div>
+  <input id="msg" placeholder="chat...">
 </div>
 
-<canvas id="game"></canvas>
+<!-- MOBILE CONTROLS -->
+<div id="controls">
+  <div></div>
+  <div class="btn" onmousedown="move('up')">⬆</div>
+  <div></div>
+
+  <div class="btn" onmousedown="move('left')">⬅</div>
+  <div class="btn" onmousedown="move('down')">⬇</div>
+  <div class="btn" onmousedown="move('right')">➡</div>
+</div>
+
+<canvas id="c"></canvas>
 
 <script src="/socket.io/socket.io.js"></script>
 
 <script>
-const username = localStorage.getItem('username');
-
-if (!username) {
-  location.href = '/login.html';
-}
-
-document.getElementById('username').innerText = username;
-
 const socket = io();
 
-socket.emit('join', { username });
+/* USER */
+const username = localStorage.getItem("username");
+if(!username) location.href="/login.html";
 
-const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d');
+document.getElementById("name").innerText = username;
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-let players = {};
-
-socket.on('players', data => {
-  players = data;
-});
-
-socket.on('chat', data => {
-  const div = document.createElement('div');
-  div.innerText = data.username + ": " + data.text;
-  document.getElementById('messages').appendChild(div);
-});
-
-document.getElementById('msg').addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    socket.emit('chat', { text: e.target.value });
-    e.target.value = '';
-  }
-});
-
-let x = 200, y = 200;
-
-document.addEventListener('keydown', e => {
-  if (e.key === 'w') y -= 5;
-  if (e.key === 's') y += 5;
-  if (e.key === 'a') x -= 5;
-  if (e.key === 'd') x += 5;
-
-  socket.emit('move', { x, y });
-});
-
-function draw() {
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  for (let id in players) {
-    let p = players[id];
-
-    // BODY
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, 10, 0, Math.PI*2);
-    ctx.fillStyle = "#4da6ff";
-    ctx.fill();
-
-    // NAME
-    ctx.fillStyle = "#000";
-    ctx.fillText(p.username, p.x - 15, p.y - 15);
-  }
-
-  requestAnimationFrame(draw);
+/* MOBILE DETECT */
+function isMobile() {
+  return /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
 }
 
-draw();
+if (isMobile()) {
+  document.getElementById("controls").style.display = "grid";
+}
+
+/* anti double tab */
+if(sessionStorage.getItem("joined")){
+  alert("Already open in this tab!");
+  location.href="/";
+}
+sessionStorage.setItem("joined","1");
+
+/* STATE */
+let players = {};
+let x = 300, y = 300;
+
+/* SOCKET */
+socket.emit("join", { username });
+
+socket.on("players", p => {
+  players = p;
+
+  for(let id in p){
+    if(p[id].username === username){
+      document.getElementById("coins").innerText = p[id].coins;
+    }
+  }
+});
+
+/* CHAT SEND */
+document.getElementById("msg").addEventListener("keydown", e => {
+  if(e.key === "Enter"){
+    socket.emit("chat", { text: e.target.value });
+    e.target.value = "";
+  }
+});
+
+/* MOVE KEYBOARD */
+document.addEventListener("keydown", e => {
+  if(e.key==="w"||e.key==="ArrowUp") y-=5;
+  if(e.key==="s"||e.key==="ArrowDown") y+=5;
+  if(e.key==="a"||e.key==="ArrowLeft") x-=5;
+  if(e.key==="d"||e.key==="ArrowRight") x+=5;
+
+  socket.emit("move", { x, y });
+});
+
+/* MOBILE MOVE */
+function move(dir){
+  if(dir==="up") y-=10;
+  if(dir==="down") y+=10;
+  if(dir==="left") x-=10;
+  if(dir==="right") x+=10;
+
+  socket.emit("move", { x, y });
+}
+
+/* LOGOUT */
+function logout(){
+  localStorage.clear();
+  sessionStorage.clear();
+  location.href="/login.html";
+}
+
+/* CHAT BUBBLES */
+const bubbles = {};
+
+socket.on("chat", data => {
+  bubbles[data.id] = {
+    text: data.text,
+    time: Date.now()
+  };
+});
+
+/* CANVAS */
+const c = document.getElementById("c");
+const ctx = c.getContext("2d");
+
+c.width = innerWidth;
+c.height = innerHeight;
+
+/* STICKMAN */
+function drawStick(p){
+  let walk = Math.sin(p.anim || 0) * 5;
+
+  ctx.strokeStyle = "#000";
+  ctx.lineWidth = 2;
+
+  ctx.beginPath();
+  ctx.arc(p.x, p.y-40, 10, 0, Math.PI*2);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(p.x, p.y-30);
+  ctx.lineTo(p.x, p.y);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(p.x, p.y-20);
+  ctx.lineTo(p.x-10, p.y-10+walk);
+  ctx.moveTo(p.x, p.y-20);
+  ctx.lineTo(p.x+10, p.y-10-walk);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(p.x, p.y);
+  ctx.lineTo(p.x-10+walk, p.y+20);
+  ctx.moveTo(p.x, p.y);
+  ctx.lineTo(p.x+10-walk, p.y+20);
+  ctx.stroke();
+}
+
+/* BUBBLE */
+function bubble(p, text){
+  ctx.fillStyle = "rgba(255,255,255,0.8)";
+  ctx.fillRect(p.x-40, p.y-80, 100, 20);
+
+  ctx.fillStyle = "#000";
+  ctx.font = "12px Arial";
+  ctx.fillText(text, p.x-35, p.y-65);
+}
+
+/* LOOP */
+function loop(){
+  ctx.clearRect(0,0,c.width,c.height);
+
+  for(let id in players){
+    let p = players[id];
+
+    drawStick(p);
+
+    if(bubbles[id]){
+      if(Date.now() - bubbles[id].time < 3000){
+        bubble(p, bubbles[id].text);
+      }
+    }
+  }
+
+  requestAnimationFrame(loop);
+}
+
+loop();
+
 </script>
 
 </body>
