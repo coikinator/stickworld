@@ -1,33 +1,91 @@
 <!DOCTYPE html>
 <html>
+<head>
+<title>Register</title>
+
+<style>
+body {
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background: linear-gradient(to bottom, #cfe9ff, #ffffff);
+  font-family: Arial;
+}
+
+.box {
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(10px);
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  width: 250px;
+  text-align:center;
+}
+
+input {
+  width:100%;
+  margin:10px 0;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+
+button {
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  background:#4da6ff;
+  color:white;
+  cursor:pointer;
+}
+
+button:hover {
+  background:#3399ff;
+}
+</style>
+</head>
+
 <body>
-<h2>Register</h2>
 
-<input id="user" placeholder="Username"><br>
-<input id="pass" type="password" placeholder="Password"><br>
-<button onclick="register()">Register</button>
+<div class="box">
+  <h2>Register</h2>
 
-<p>Already have an account? <a href="/login.html">Login</a></p>
+  <input id="user" placeholder="Username">
+  <input id="pass" type="password" placeholder="Password">
+
+  <button onclick="registerUser()">Register</button>
+
+  <p>Already have an account?<br>
+  <a href="/login.html">Login</a></p>
+</div>
 
 <script>
-async function register() {
-  const res = await fetch('/api/register', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({
-      username: user.value,
-      password: pass.value
-    })
-  });
+async function registerUser() {
+  try {
+    const username = document.getElementById('user').value;
+    const password = document.getElementById('pass').value;
 
-  const data = await res.json();
+    const res = await fetch('/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
 
-  if (data.token) {
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('username', data.username);
-    location.href = '/';
-  } else {
-    alert(data.error);
+    const data = await res.json();
+
+    if (data.token) {
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('username', data.username);
+      window.location.href = '/';
+    } else {
+      alert(data.error || "Error");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Register failed");
   }
 }
 </script>
