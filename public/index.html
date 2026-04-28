@@ -65,7 +65,7 @@ canvas {
   bottom: 20px;
   right: 20px;
 
-  display: none; /* default hidden */
+  display: none;
   grid-template-columns: 50px 50px 50px;
   gap: 5px;
 }
@@ -102,7 +102,7 @@ canvas {
   <input id="msg" placeholder="chat...">
 </div>
 
-<!-- MOBILE CONTROLS -->
+<!-- MOBILE -->
 <div id="controls">
   <div></div>
   <div class="btn" onmousedown="move('up')">⬆</div>
@@ -120,46 +120,48 @@ canvas {
 <script>
 const socket = io();
 
-/* USER */
 const username = localStorage.getItem("username");
 if(!username) location.href="/login.html";
 
 document.getElementById("name").innerText = username;
 
-/* MOBILE DETECT */
-function isMobile() {
-  return /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
-}
-
-if (isMobile()) {
+/* mobile detect */
+if(/Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent)){
   document.getElementById("controls").style.display = "grid";
 }
 
 /* anti double tab */
 if(sessionStorage.getItem("joined")){
-  alert("Already open in this tab!");
+  alert("Game already open in this tab!");
   location.href="/";
 }
 sessionStorage.setItem("joined","1");
 
-/* STATE */
+/* state */
 let players = {};
 let x = 300, y = 300;
 
-/* SOCKET */
+/* join */
 socket.emit("join", { username });
 
+/* players update */
 socket.on("players", p => {
   players = p;
 
   for(let id in p){
     if(p[id].username === username){
-      document.getElementById("coins").innerText = p[id].coins;
+      document.getElementById("coins").innerText = p[id].coins ?? 0;
     }
   }
 });
 
-/* CHAT SEND */
+/* chat receive */
+socket.on("chat", data => {
+  addChat(data.username, data.text);
+  bubbles[data.id] = { text: data.text, time: Date.now() };
+});
+
+/* chat send */
 document.getElementById("msg").addEventListener("keydown", e => {
   if(e.key === "Enter"){
     socket.emit("chat", { text: e.target.value });
@@ -167,7 +169,7 @@ document.getElementById("msg").addEventListener("keydown", e => {
   }
 });
 
-/* MOVE KEYBOARD */
+/* movement */
 document.addEventListener("keydown", e => {
   if(e.key==="w"||e.key==="ArrowUp") y-=5;
   if(e.key==="s"||e.key==="ArrowDown") y+=5;
@@ -177,7 +179,7 @@ document.addEventListener("keydown", e => {
   socket.emit("move", { x, y });
 });
 
-/* MOBILE MOVE */
+/* mobile move */
 function move(dir){
   if(dir==="up") y-=10;
   if(dir==="down") y+=10;
@@ -187,33 +189,33 @@ function move(dir){
   socket.emit("move", { x, y });
 }
 
-/* LOGOUT */
+/* logout */
 function logout(){
   localStorage.clear();
   sessionStorage.clear();
   location.href="/login.html";
 }
 
-/* CHAT BUBBLES */
+/* chat UI */
+function addChat(user, text){
+  const div = document.createElement("div");
+  div.innerText = user + ": " + text;
+  document.getElementById("msgs").appendChild(div);
+}
+
+/* bubbles */
 const bubbles = {};
 
-socket.on("chat", data => {
-  bubbles[data.id] = {
-    text: data.text,
-    time: Date.now()
-  };
-});
-
-/* CANVAS */
+/* canvas */
 const c = document.getElementById("c");
 const ctx = c.getContext("2d");
 
 c.width = innerWidth;
 c.height = innerHeight;
 
-/* STICKMAN */
+/* stickman */
 function drawStick(p){
-  let walk = Math.sin(p.anim || 0) * 5;
+  let walk = Math.sin(p.anim || 0) * 6;
 
   ctx.strokeStyle = "#000";
   ctx.lineWidth = 2;
@@ -242,17 +244,17 @@ function drawStick(p){
   ctx.stroke();
 }
 
-/* BUBBLE */
+/* bubble */
 function bubble(p, text){
-  ctx.fillStyle = "rgba(255,255,255,0.8)";
-  ctx.fillRect(p.x-40, p.y-80, 100, 20);
+  ctx.fillStyle = "rgba(255,255,255,0.85)";
+  ctx.fillRect(p.x-50, p.y-80, 110, 20);
 
   ctx.fillStyle = "#000";
   ctx.font = "12px Arial";
-  ctx.fillText(text, p.x-35, p.y-65);
+  ctx.fillText(text, p.x-45, p.y-65);
 }
 
-/* LOOP */
+/* loop */
 function loop(){
   ctx.clearRect(0,0,c.width,c.height);
 
