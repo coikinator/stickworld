@@ -1,51 +1,123 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>StickWorld</title>
-  <style>
-    body {
-      margin: 0;
-      background: linear-gradient(#dfe9f3, #ffffff);
-      font-family: Arial;
-      overflow: hidden;
-    }
+<title>StickWorld</title>
 
-    canvas {
-      display: block;
-    }
+<style>
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: Arial;
+  background: linear-gradient(135deg, #d9f0ff, #ffffff);
+}
 
-    #chat {
-      position: absolute;
-      bottom: 10px;
-      left: 10px;
-      width: 250px;
-      background: rgba(255,255,255,0.8);
-      border-radius: 10px;
-      padding: 10px;
-    }
+/* GAME CANVAS */
+canvas {
+  display: block;
+}
 
-    input {
-      width: 100%;
-    }
-  </style>
+/* TOP BAR */
+#topbar {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  height: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 0 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+#username {
+  font-weight: bold;
+  color: #333;
+}
+
+/* CHAT */
+#chat {
+  position: absolute;
+  bottom: 15px;
+  left: 15px;
+  width: 260px;
+
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+#messages {
+  height: 120px;
+  overflow-y: auto;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+#msg {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  outline: none;
+}
+
+/* INFO PANEL */
+#info {
+  position: absolute;
+  top: 60px;
+  right: 15px;
+  width: 180px;
+
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 10px;
+  font-size: 13px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+</style>
 </head>
+
 <body>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <div>🎮 StickWorld</div>
+  <div id="username">Loading...</div>
+</div>
+
+<!-- INFO -->
+<div id="info">
+  WASD = Move<br>
+  Chat = Enter<br>
+  Multiplayer Active
+</div>
+
+<!-- CHAT -->
+<div id="chat">
+  <div id="messages"></div>
+  <input id="msg" placeholder="Type message...">
+</div>
 
 <canvas id="game"></canvas>
 
-<div id="chat">
-  <div id="messages"></div>
-  <input id="msg" placeholder="Type...">
-</div>
-
 <script src="/socket.io/socket.io.js"></script>
+
 <script>
-const token = localStorage.getItem('token');
 const username = localStorage.getItem('username');
 
-if (!token) {
+if (!username) {
   location.href = '/login.html';
 }
+
+document.getElementById('username').innerText = username;
 
 const socket = io();
 
@@ -93,11 +165,15 @@ function draw() {
   for (let id in players) {
     let p = players[id];
 
+    // BODY
     ctx.beginPath();
     ctx.arc(p.x, p.y, 10, 0, Math.PI*2);
+    ctx.fillStyle = "#4da6ff";
     ctx.fill();
 
-    ctx.fillText(p.username, p.x - 10, p.y - 15);
+    // NAME
+    ctx.fillStyle = "#000";
+    ctx.fillText(p.username, p.x - 15, p.y - 15);
   }
 
   requestAnimationFrame(draw);
