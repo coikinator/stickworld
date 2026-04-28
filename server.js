@@ -73,21 +73,19 @@ app.post('/api/login', async (req, res) => {
 const players = {};
 
 /* =========================
-   SOCKET LOGIC
+   SOCKET
 ========================= */
 io.on('connection', (socket) => {
 
-  /* JOIN */
+  /* JOIN (FIXED SPAWN + SAFE INIT) */
   socket.on('join', (data) => {
 
     players[socket.id] = {
       id: socket.id,
       username: data.username,
 
-      // FIXED SPAWN (NEVER IN SKY)
       x: 300,
       y: 500,
-
       tx: 300,
 
       vy: 0,
@@ -104,9 +102,9 @@ io.on('connection', (socket) => {
     io.emit('players', players);
   });
 
-  /* MOVE (ONLY X FROM CLIENT) */
+  /* MOVE (ONLY X CONTROL) */
   socket.on('move', (data) => {
-    let p = players[socket.id];
+    const p = players[socket.id];
     if (!p) return;
 
     if (typeof data.x === "number") {
@@ -114,9 +112,9 @@ io.on('connection', (socket) => {
     }
   });
 
-  /* JUMP (SERVER CONTROLLED PHYSICS) */
+  /* JUMP */
   socket.on('jump', () => {
-    let p = players[socket.id];
+    const p = players[socket.id];
     if (!p) return;
 
     if (p.onGround) {
@@ -127,7 +125,7 @@ io.on('connection', (socket) => {
 
   /* CHAT */
   socket.on('chat', (data) => {
-    let p = players[socket.id];
+    const p = players[socket.id];
     if (!p) return;
 
     io.emit('chat', {
@@ -142,11 +140,10 @@ io.on('connection', (socket) => {
     delete players[socket.id];
     io.emit('players', players);
   });
-
 });
 
 /* =========================
-   GAME LOOP (PHYSICS + COINS + TIMER)
+   GAME LOOP (FIXED PHYSICS + TIMER + COINS)
 ========================= */
 setInterval(() => {
 
@@ -154,17 +151,17 @@ setInterval(() => {
   const ground = 500;
 
   for (let id in players) {
-    let p = players[id];
+    const p = players[id];
     if (!p) continue;
 
-    /* SMOOTH X MOVEMENT */
+    /* SMOOTH MOVEMENT */
     p.x += (p.tx - p.x) * 0.25;
 
     /* GRAVITY */
     p.vy += 0.6;
     p.y += p.vy;
 
-    /* GROUND COLLISION */
+    /* GROUND FIX */
     if (p.y >= ground) {
       p.y = ground;
       p.vy = 0;
@@ -174,13 +171,13 @@ setInterval(() => {
     /* ANIMATION */
     p.anim += 0.2;
 
-    /* TIMER SAFE INIT */
+    /* TIMER FIX (NO RESET BUG) */
     if (!p.lastReward) p.lastReward = now;
 
-    let timeLeft = 600000 - (now - p.lastReward);
+    const timeLeft = 600000 - (now - p.lastReward);
     p.timeLeft = Math.max(0, timeLeft);
 
-    /* COINS REWARD */
+    /* COINS */
     if (timeLeft <= 0) {
       p.coins += 50;
       p.lastReward = now;
@@ -191,7 +188,7 @@ setInterval(() => {
 
 }, 1000 / 30);
 
-/* START SERVER */
+/* START */
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log('StickWorld running on port ' + PORT);
