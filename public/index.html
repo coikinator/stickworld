@@ -109,12 +109,12 @@ button {
 
 <div id="controls">
   <div></div>
-  <div class="btn" onclick="jump()">⬆</div>
+  <div class="btn" onmousedown="jump()">⬆</div>
   <div></div>
 
-  <div class="btn" onclick="left()">⬅</div>
-  <div class="btn" onclick="down()">⬇</div>
-  <div class="btn" onclick="right()">➡</div>
+  <div class="btn" onmousedown="hold('left')" onmouseup="stop()">⬅</div>
+  <div class="btn" onmousedown="hold('down')" onmouseup="stop()">⬇</div>
+  <div class="btn" onmousedown="hold('right')" onmouseup="stop()">➡</div>
 </div>
 
 <canvas id="c"></canvas>
@@ -135,151 +135,67 @@ if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
   document.getElementById("controls").style.display = "grid";
 }
 
-/* STATE */
-let players = {};
-let x = 300;
-let y = 500;
-
-/* JOIN */
+/* IMPORTANT: NO LOCAL POSITION (FIX BUG) */
 socket.emit("join",{username});
 
-/* RECEIVE PLAYERS */
-socket.on("players", p=>{
-  players = p;
+/* INPUT STATE */
+let holdInterval;
 
+/* HOLD MOVE FIX */
+function hold(dir){
+  clearInterval(holdInterval);
+
+  holdInterval = setInterval(()=>{
+    if(dir==="left") socket.emit("move",{x: -6});
+    if(dir==="right") socket.emit("move",{x: 6});
+  },50);
+}
+
+function stop(){
+  clearInterval(holdInterval);
+}
+
+/* PC MOVE */
+document.addEventListener("keydown",e=>{
+  if(e.key==="a") socket.emit("move",{x:-6});
+  if(e.key==="d") socket.emit("move",{x:6});
+  if(e.code==="Space") socket.emit("jump");
+});
+
+/* MOBILE JUMP */
+function jump(){
+  socket.emit("jump");
+}
+
+/* DATA */
+socket.on("players",p=>{
   for(let id in p){
-    if(p[id].username === username){
+    if(p[id].username===username){
 
-      document.getElementById("coins").innerText = p[id].coins ?? 0;
+      document.getElementById("coins").innerText = p[id].coins;
 
-      let t = p[id].timeLeft ?? 600000;
-
+      let t = p[id].timeLeft;
       let m = Math.floor(t/60000);
       let s = Math.floor((t%60000)/1000);
 
       document.getElementById("timer").innerText =
-      "Next 50 coins in " +
-      String(m).padStart(2,'0') + ":" +
-      String(s).padStart(2,'0');
+      "Next coins in " + m + ":" + String(s).padStart(2,'0');
     }
   }
 });
 
 /* CHAT */
-socket.on("chat", data=>{
-  addChat(data.username, data.text);
+socket.on("chat",d=>{
+  const div=document.createElement("div");
+  div.innerText=d.username+": "+d.text;
+  document.getElementById("msgs").appendChild(div);
 });
 
-/* CHAT UI */
-function addChat(u,t){
-  const d=document.createElement("div");
-  d.innerText=u+": "+t;
-  document.getElementById("msgs").appendChild(d);
-}
-
-/* INPUT */
-document.getElementById("msg").addEventListener("keydown",e=>{
-  if(e.key==="Enter"){
-    socket.emit("chat",{text:e.target.value});
-    e.target.value="";
-  }
-});
-
-/* MOVEMENT (ONLY X - SERVER HANDLES Y PHYSICS) */
-document.addEventListener("keydown",e=>{
-  if(e.key==="a"||e.key==="ArrowLeft") x-=6;
-  if(e.key==="d"||e.key==="ArrowRight") x+=6;
-
-  socket.emit("move",{x});
-});
-
-/* MOBILE */
-function left(){ x-=10; socket.emit("move",{x}); }
-function right(){ x+=10; socket.emit("move",{x}); }
-function down(){ x+=10; socket.emit("move",{x}); }
-
-/* JUMP (SERVER CONTROLLED) */
-function jump(){
-  socket.emit("jump");
-}
-
-/* LOGOUT CLEAN */
+/* LOGOUT */
 function logout(){
   localStorage.clear();
   location.href="/login.html";
 }
-
-/* CANVAS */
-const c=document.getElementById("c");
-const ctx=c.getContext("2d");
-
-c.width=innerWidth;
-c.height=innerHeight;
-
-/* WORLD */
-function world(){
-  ctx.fillStyle="#7ad67a";
-  ctx.fillRect(0,500,innerWidth,300);
-
-  for(let i=0;i<6;i++){
-    let tx = 150 + i*180;
-
-    ctx.fillStyle="#4b2e1f";
-    ctx.fillRect(tx,450,20,60);
-
-    ctx.fillStyle="#2ecc71";
-    ctx.beginPath();
-    ctx.arc(tx+10,430,30,0,Math.PI*2);
-    ctx.fill();
-  }
-}
-
-/* STICKMAN */
-function draw(p){
-  let walk = Math.sin(p.anim||0)*5;
-
-  ctx.strokeStyle="#000";
-  ctx.lineWidth=2;
-
-  ctx.beginPath();
-  ctx.arc(p.x,p.y-40,10,0,Math.PI*2);
-  ctx.stroke();
-
-  ctx.beginPath();
-  ctx.moveTo(p.x,p.y-30);
-  ctx.lineTo(p.x,p.y);
-  ctx.stroke();
-
-  ctx.beginPath();
-  ctx.moveTo(p.x,p.y-20);
-  ctx.lineTo(p.x-10,p.y-10+walk);
-  ctx.moveTo(p.x,p.y-20);
-  ctx.lineTo(p.x+10,p.y-10-walk);
-  ctx.stroke();
-
-  ctx.beginPath();
-  ctx.moveTo(p.x,p.y);
-  ctx.lineTo(p.x-10+walk,p.y+20);
-  ctx.moveTo(p.x,p.y);
-  ctx.lineTo(p.x+10-walk,p.y+20);
-  ctx.stroke();
-}
-
-/* LOOP */
-function loop(){
-  ctx.clearRect(0,0,c.width,c.height);
-
-  world();
-
-  for(let id in players){
-    draw(players[id]);
-  }
-
-  requestAnimationFrame(loop);
-}
-
-loop();
-
 </script>
 
 </body>
