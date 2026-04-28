@@ -23,6 +23,9 @@ const User = mongoose.model('User', UserSchema);
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 app.post('/api/register', async (req, res) => {
   try {
