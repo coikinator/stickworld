@@ -13,15 +13,17 @@ const io = socketio(server);
 const JWT_SECRET = 'stickworld_secret_key_2024';
 const MONGO_URI = process.env.MONGO_URI;
 
+/* DB */
 mongoose.connect(MONGO_URI);
 
-/* USER */
+/* USER MODEL */
 const UserSchema = new mongoose.Schema({
   username: { type: String, unique: true },
   password: String
 });
 const User = mongoose.model('User', UserSchema);
 
+/* STATIC */
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -29,42 +31,55 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-/* AUTH */
+/* REGISTER */
 app.post('/api/register', async (req, res) => {
   try {
     const { username, password } = req.body;
     const hashed = await bcrypt.hash(password, 10);
 
-    await new User({ username, password: hashed }).save();
+    const user = new User({ username, password: hashed });
+    await user.save();
 
     const token = jwt.sign({ username }, JWT_SECRET);
     res.json({ token, username });
-  } catch {
+
+  } catch (e) {
     res.status(400).json({ error: 'Username already taken' });
   }
 });
 
+/* LOGIN */
 app.post('/api/login', async (req, res) => {
-  const { username, password } = req.body;
+  try {
+    const { username, password } = req.body;
 
-  const user = await User.findOne({ username });
-  if (!user) return res.status(400).json({ error: 'User not found' });
+    const user = await User.findOne({ username });
+    if (!user) return res.status(400).json({ error: 'User not found' });
 
-  const ok = await bcrypt.compare(password, user.password);
-  if (!ok) return res.status(400).json({ error: 'Wrong password' });
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) return res.status(400).json({ error: 'Wrong password' });
 
-  const token = jwt.sign({ username }, JWT_SECRET);
-  res.json({ token, username });
+    const token = jwt.sign({ username }, JWT_SECRET);
+    res.json({ token, username });
+
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
-/* GAME STATE */
+/* =========================
+   GAME STATE
+========================= */
 const players = {};
 
+/* =========================
+   SOCKET
+========================= */
 io.on('connection', (socket) => {
 
+  /* JOIN (FIXED SPAWN + SAFE INIT) */
   socket.on('join', (data) => {
 
-    /* IMPORTANT FIX: no fake reset values */
     players[socket.id] = {
       id: socket.id,
       username: data.username,
@@ -80,19 +95,24 @@ io.on('connection', (socket) => {
 
       coins: 0,
 
-      /* REAL TIMER BASE (NO RESET BUG) */
-      lastReward: players[socket.id]?.lastReward || Date.now()
+      lastReward: Date.now(),
+      timeLeft: 600000
     };
 
     io.emit('players', players);
   });
 
+  /* MOVE (ONLY X CONTROL) */
   socket.on('move', (data) => {
     const p = players[socket.id];
     if (!p) return;
-    if (typeof data.x === "number") p.tx = data.x;
+
+    if (typeof data.x === "number") {
+      p.tx = data.x;
+    }
   });
 
+  /* JUMP */
   socket.on('jump', () => {
     const p = players[socket.id];
     if (!p) return;
@@ -103,13 +123,28 @@ io.on('connection', (socket) => {
     }
   });
 
+  /* CHAT */
+  socket.on('chat', (data) => {
+    const p = players[socket.id];
+    if (!p) return;
+
+    io.emit('chat', {
+      id: socket.id,
+      username: p.username,
+      text: data.text
+    });
+  });
+
+  /* DISCONNECT */
   socket.on('disconnect', () => {
     delete players[socket.id];
     io.emit('players', players);
   });
 });
 
-/* GAME LOOP */
+/* =========================
+   GAME LOOP (FIXED PHYSICS + TIMER + COINS)
+========================= */
 setInterval(() => {
 
   const now = Date.now();
@@ -119,35 +154,42 @@ setInterval(() => {
     const p = players[id];
     if (!p) continue;
 
-    /* movement smoothing */
+    /* SMOOTH MOVEMENT */
     p.x += (p.tx - p.x) * 0.25;
 
-    /* gravity */
+    /* GRAVITY */
     p.vy += 0.6;
     p.y += p.vy;
 
+    /* GROUND FIX */
     if (p.y >= ground) {
       p.y = ground;
       p.vy = 0;
       p.onGround = true;
     }
 
+    /* ANIMATION */
     p.anim += 0.2;
 
-    /* COIN TIMER FIX (NO RESET AFTER RELOAD LOGIC) */
-    const elapsed = now - p.lastReward;
+    /* TIMER FIX (NO RESET BUG) */
+    if (!p.lastReward) p.lastReward = now;
 
-    if (elapsed >= 600000) {
+    const timeLeft = 600000 - (now - p.lastReward);
+    p.timeLeft = Math.max(0, timeLeft);
+
+    /* COINS */
+    if (timeLeft <= 0) {
       p.coins += 50;
       p.lastReward = now;
     }
-
-    p.timeLeft = Math.max(0, 600000 - elapsed);
   }
 
   io.emit('players', players);
 
 }, 1000 / 30);
 
+/* START */
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log("StickWorld running"));
+server.listen(PORT, () => {
+  console.log('StickWorld running on port ' + PORT);
+});
