@@ -8,15 +8,12 @@ body {
   margin: 0;
   overflow: hidden;
   font-family: Arial;
-  background: #dff2ff;
+  background: linear-gradient(#bfe9ff, #ffffff);
 }
 
-/* CANVAS */
-canvas {
-  display: block;
-}
+canvas { display: block; }
 
-/* TOP UI */
+/* UI */
 #ui {
   position: absolute;
   top: 10px;
@@ -30,7 +27,15 @@ canvas {
   padding: 10px 15px;
   background: rgba(255,255,255,0.6);
   backdrop-filter: blur(10px);
-  border-radius: 12px;
+  border-radius: 14px;
+}
+
+button {
+  background: rgba(0,0,0,0.08);
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
 }
 
 /* CHAT */
@@ -38,7 +43,7 @@ canvas {
   position: absolute;
   bottom: 10px;
   left: 10px;
-  width: 240px;
+  width: 250px;
 
   background: rgba(255,255,255,0.6);
   backdrop-filter: blur(10px);
@@ -47,7 +52,7 @@ canvas {
 }
 
 #msgs {
-  height: 100px;
+  height: 110px;
   overflow-y: auto;
   font-size: 12px;
 }
@@ -55,16 +60,20 @@ canvas {
 #msg {
   width: 100%;
   padding: 6px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
 }
 
-/* MOBILE CONTROLS */
+/* TIMER TEXT */
+#timer {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-top: 5px;
+}
+
+/* MOBILE */
 #controls {
   position: absolute;
   bottom: 20px;
   right: 20px;
-
   display: none;
   grid-template-columns: 50px 50px 50px;
   gap: 5px;
@@ -73,44 +82,43 @@ canvas {
 .btn {
   width: 50px;
   height: 50px;
-  background: rgba(0,0,0,0.2);
+  background: rgba(0,0,0,0.15);
   border-radius: 10px;
   text-align: center;
   line-height: 50px;
-  user-select: none;
 }
 </style>
 </head>
 
 <body>
 
-<!-- UI -->
 <div id="ui">
-  <div>🎮 StickWorld</div>
+  <div>StickWorld</div>
 
   <div>
-    👤 <span id="name"></span> |
-    🪙 <span id="coins">0</span>
+    <div id="name"></div>
+    <div>
+      Coins: <span id="coins">0</span>
+    </div>
+    <div id="timer">Next reward loading...</div>
   </div>
 
   <button onclick="logout()">Logout</button>
 </div>
 
-<!-- CHAT -->
 <div id="chat">
   <div id="msgs"></div>
   <input id="msg" placeholder="chat...">
 </div>
 
-<!-- MOBILE -->
 <div id="controls">
   <div></div>
-  <div class="btn" onmousedown="move('up')">⬆</div>
+  <div class="btn" onmousedown="jump()">⬆</div>
   <div></div>
 
-  <div class="btn" onmousedown="move('left')">⬅</div>
-  <div class="btn" onmousedown="move('down')">⬇</div>
-  <div class="btn" onmousedown="move('right')">➡</div>
+  <div class="btn" onmousedown="left()">⬅</div>
+  <div class="btn" onmousedown="down()">⬇</div>
+  <div class="btn" onmousedown="right()">➡</div>
 </div>
 
 <canvas id="c"></canvas>
@@ -125,156 +133,157 @@ if(!username) location.href="/login.html";
 
 document.getElementById("name").innerText = username;
 
-/* mobile detect */
-if(/Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent)){
+/* MOBILE */
+if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
   document.getElementById("controls").style.display = "grid";
 }
 
-/* anti double tab */
-if(sessionStorage.getItem("joined")){
-  alert("Game already open in this tab!");
-  location.href="/";
-}
-sessionStorage.setItem("joined","1");
-
-/* state */
+/* STATE */
 let players = {};
-let x = 300, y = 300;
+let x=300, y=300;
 
-/* join */
-socket.emit("join", { username });
+/* JOIN */
+socket.emit("join",{username});
 
-/* players update */
-socket.on("players", p => {
-  players = p;
+/* PLAYERS */
+socket.on("players", p=>{
+  players=p;
 
   for(let id in p){
-    if(p[id].username === username){
+    if(p[id].username===username){
       document.getElementById("coins").innerText = p[id].coins ?? 0;
+
+      let t = p[id].timeLeft ?? 600000;
+
+      let m = Math.floor(t/60000);
+      let s = Math.floor((t%60000)/1000);
+
+      document.getElementById("timer").innerText =
+        "Next 50 coins in " +
+        String(m).padStart(2,'0') + ":" +
+        String(s).padStart(2,'0');
     }
   }
 });
 
-/* chat receive */
-socket.on("chat", data => {
-  addChat(data.username, data.text);
-  bubbles[data.id] = { text: data.text, time: Date.now() };
+/* CHAT */
+socket.on("chat", data=>{
+  addChat(data.username,data.text);
 });
 
-/* chat send */
-document.getElementById("msg").addEventListener("keydown", e => {
-  if(e.key === "Enter"){
-    socket.emit("chat", { text: e.target.value });
-    e.target.value = "";
+/* CHAT UI */
+function addChat(u,t){
+  const d=document.createElement("div");
+  d.innerText=u+": "+t;
+  document.getElementById("msgs").appendChild(d);
+}
+
+/* INPUT */
+document.getElementById("msg").addEventListener("keydown",e=>{
+  if(e.key==="Enter"){
+    socket.emit("chat",{text:e.target.value});
+    e.target.value="";
   }
 });
 
-/* movement */
-document.addEventListener("keydown", e => {
-  if(e.key==="w"||e.key==="ArrowUp") y-=5;
-  if(e.key==="s"||e.key==="ArrowDown") y+=5;
-  if(e.key==="a"||e.key==="ArrowLeft") x-=5;
-  if(e.key==="d"||e.key==="ArrowRight") x+=5;
+/* MOVE */
+document.addEventListener("keydown",e=>{
+  if(e.key==="a") x-=6;
+  if(e.key==="d") x+=6;
+  if(e.key===" ") jump();
 
-  socket.emit("move", { x, y });
+  socket.emit("move",{x,y});
 });
 
-/* mobile move */
-function move(dir){
-  if(dir==="up") y-=10;
-  if(dir==="down") y+=10;
-  if(dir==="left") x-=10;
-  if(dir==="right") x+=10;
+/* MOBILE */
+function left(){ x-=10; socket.emit("move",{x,y}); }
+function right(){ x+=10; socket.emit("move",{x,y}); }
+function down(){ x+=10; socket.emit("move",{x,y}); }
 
-  socket.emit("move", { x, y });
+/* JUMP SIMPLE */
+function jump(){
+  y -= 30;
+  setTimeout(()=> y += 30, 200);
+  socket.emit("move",{x,y});
 }
 
-/* logout */
+/* LOGOUT CLEAN */
 function logout(){
   localStorage.clear();
-  sessionStorage.clear();
   location.href="/login.html";
 }
 
-/* chat UI */
-function addChat(user, text){
-  const div = document.createElement("div");
-  div.innerText = user + ": " + text;
-  document.getElementById("msgs").appendChild(div);
+/* CANVAS */
+const c=document.getElementById("c");
+const ctx=c.getContext("2d");
+
+c.width=innerWidth;
+c.height=innerHeight;
+
+/* WORLD */
+function drawWorld(){
+  ctx.fillStyle="#7ad67a";
+  ctx.fillRect(0,500,innerWidth,300);
+
+  // trees
+  for(let i=0;i<5;i++){
+    let tx = 200 + i*200;
+
+    ctx.fillStyle="#4b2e1f";
+    ctx.fillRect(tx,450,20,50);
+
+    ctx.fillStyle="#2ecc71";
+    ctx.beginPath();
+    ctx.arc(tx+10,430,30,0,Math.PI*2);
+    ctx.fill();
+  }
 }
 
-/* bubbles */
-const bubbles = {};
-
-/* canvas */
-const c = document.getElementById("c");
-const ctx = c.getContext("2d");
-
-c.width = innerWidth;
-c.height = innerHeight;
-
-/* stickman */
+/* STICKMAN */
 function drawStick(p){
-  let walk = Math.sin(p.anim || 0) * 6;
+  let walk = Math.sin(p.anim||0)*5;
 
-  ctx.strokeStyle = "#000";
-  ctx.lineWidth = 2;
+  ctx.strokeStyle="#000";
+  ctx.lineWidth=2;
 
   ctx.beginPath();
-  ctx.arc(p.x, p.y-40, 10, 0, Math.PI*2);
+  ctx.arc(p.x,p.y-40,10,0,Math.PI*2);
   ctx.stroke();
 
   ctx.beginPath();
-  ctx.moveTo(p.x, p.y-30);
-  ctx.lineTo(p.x, p.y);
+  ctx.moveTo(p.x,p.y-30);
+  ctx.lineTo(p.x,p.y);
   ctx.stroke();
 
   ctx.beginPath();
-  ctx.moveTo(p.x, p.y-20);
-  ctx.lineTo(p.x-10, p.y-10+walk);
-  ctx.moveTo(p.x, p.y-20);
-  ctx.lineTo(p.x+10, p.y-10-walk);
+  ctx.moveTo(p.x,p.y-20);
+  ctx.lineTo(p.x-10,p.y-10+walk);
+  ctx.moveTo(p.x,p.y-20);
+  ctx.lineTo(p.x+10,p.y-10-walk);
   ctx.stroke();
 
   ctx.beginPath();
-  ctx.moveTo(p.x, p.y);
-  ctx.lineTo(p.x-10+walk, p.y+20);
-  ctx.moveTo(p.x, p.y);
-  ctx.lineTo(p.x+10-walk, p.y+20);
+  ctx.moveTo(p.x,p.y);
+  ctx.lineTo(p.x-10+walk,p.y+20);
+  ctx.moveTo(p.x,p.y);
+  ctx.lineTo(p.x+10-walk,p.y+20);
   ctx.stroke();
 }
 
-/* bubble */
-function bubble(p, text){
-  ctx.fillStyle = "rgba(255,255,255,0.85)";
-  ctx.fillRect(p.x-50, p.y-80, 110, 20);
-
-  ctx.fillStyle = "#000";
-  ctx.font = "12px Arial";
-  ctx.fillText(text, p.x-45, p.y-65);
-}
-
-/* loop */
+/* LOOP */
 function loop(){
   ctx.clearRect(0,0,c.width,c.height);
 
+  drawWorld();
+
   for(let id in players){
-    let p = players[id];
-
-    drawStick(p);
-
-    if(bubbles[id]){
-      if(Date.now() - bubbles[id].time < 3000){
-        bubble(p, bubbles[id].text);
-      }
-    }
+    drawStick(players[id]);
   }
 
   requestAnimationFrame(loop);
 }
 
 loop();
-
 </script>
 
 </body>
