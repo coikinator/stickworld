@@ -1,13 +1,98 @@
 <!DOCTYPE html>
 <html>
+<head>
+<title>StickWorld Login</title>
+
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Arial;
+  background: linear-gradient(135deg, #cfe9ff, #ffffff);
+}
+
+.card {
+  width: 300px;
+  padding: 40px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+  text-align: center;
+  animation: fadeIn 0.5s ease;
+}
+
+h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.1);
+  outline: none;
+  transition: 0.2s;
+}
+
+input:focus {
+  border: 1px solid #4da6ff;
+  box-shadow: 0 0 8px rgba(77,166,255,0.4);
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 10px;
+  background: #4da6ff;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  background: #3399ff;
+  transform: scale(1.03);
+}
+
+a {
+  color: #4da6ff;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+
 <body>
-<h2>Login</h2>
 
-<input id="user" placeholder="Username"><br>
-<input id="pass" type="password" placeholder="Password"><br>
-<button onclick="login()">Login</button>
+<div class="card">
+  <h2>Welcome Back</h2>
 
-<p>Already have an account? <a href="/register.html">Register</a></p>
+  <input id="user" placeholder="Username">
+  <input id="pass" type="password" placeholder="Password">
+
+  <button onclick="login()">Login</button>
+
+  <p style="margin-top:15px;">
+    No account? <a href="/register.html">Register</a>
+  </p>
+</div>
 
 <script>
 async function login() {
@@ -15,8 +100,8 @@ async function login() {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
     body: JSON.stringify({
-      username: user.value,
-      password: pass.value
+      username: document.getElementById('user').value,
+      password: document.getElementById('pass').value
     })
   });
 
@@ -27,7 +112,7 @@ async function login() {
     localStorage.setItem('username', data.username);
     location.href = '/';
   } else {
-    alert(data.error);
+    alert(data.error || "Login failed");
   }
 }
 </script>
