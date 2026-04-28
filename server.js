@@ -72,23 +72,31 @@ app.post('/api/login', async (req, res) => {
 ========================= */
 const players = {};
 
-/* SOCKET */
+/* =========================
+   SOCKET LOGIC
+========================= */
 io.on('connection', (socket) => {
 
   /* JOIN */
   socket.on('join', (data) => {
+
     players[socket.id] = {
       id: socket.id,
       username: data.username,
 
+      // FIXED SPAWN (NEVER IN SKY)
       x: 300,
-      y: 300,
+      y: 500,
+
       tx: 300,
-      ty: 300,
+
+      vy: 0,
+      onGround: true,
 
       anim: 0,
 
       coins: 0,
+
       lastReward: Date.now(),
       timeLeft: 600000
     };
@@ -96,21 +104,35 @@ io.on('connection', (socket) => {
     io.emit('players', players);
   });
 
-  /* MOVE */
+  /* MOVE (ONLY X FROM CLIENT) */
   socket.on('move', (data) => {
-    if (!players[socket.id]) return;
+    let p = players[socket.id];
+    if (!p) return;
 
-    players[socket.id].tx = data.x;
-    players[socket.id].ty = data.y;
+    if (typeof data.x === "number") {
+      p.tx = data.x;
+    }
+  });
+
+  /* JUMP (SERVER CONTROLLED PHYSICS) */
+  socket.on('jump', () => {
+    let p = players[socket.id];
+    if (!p) return;
+
+    if (p.onGround) {
+      p.vy = -12;
+      p.onGround = false;
+    }
   });
 
   /* CHAT */
   socket.on('chat', (data) => {
-    if (!players[socket.id]) return;
+    let p = players[socket.id];
+    if (!p) return;
 
     io.emit('chat', {
       id: socket.id,
-      username: players[socket.id].username,
+      username: p.username,
       text: data.text
     });
   });
@@ -124,30 +146,41 @@ io.on('connection', (socket) => {
 });
 
 /* =========================
-   GAME LOOP (PHYSICS + COINS)
+   GAME LOOP (PHYSICS + COINS + TIMER)
 ========================= */
 setInterval(() => {
+
   const now = Date.now();
+  const ground = 500;
 
   for (let id in players) {
     let p = players[id];
-
     if (!p) continue;
 
-    /* smooth movement */
-    p.x += (p.tx - p.x) * 0.2;
-    p.y += (p.ty - p.y) * 0.2;
+    /* SMOOTH X MOVEMENT */
+    p.x += (p.tx - p.x) * 0.25;
 
-    /* animation tick */
-    p.anim += 0.15;
+    /* GRAVITY */
+    p.vy += 0.6;
+    p.y += p.vy;
 
-    /* coin timer */
+    /* GROUND COLLISION */
+    if (p.y >= ground) {
+      p.y = ground;
+      p.vy = 0;
+      p.onGround = true;
+    }
+
+    /* ANIMATION */
+    p.anim += 0.2;
+
+    /* TIMER SAFE INIT */
     if (!p.lastReward) p.lastReward = now;
 
     let timeLeft = 600000 - (now - p.lastReward);
     p.timeLeft = Math.max(0, timeLeft);
 
-    /* reward coins */
+    /* COINS REWARD */
     if (timeLeft <= 0) {
       p.coins += 50;
       p.lastReward = now;
