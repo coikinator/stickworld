@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-body{overflow:hidden;font-family:'Rajdhani',sans-serif;background:#87ceeb;touch-action:none;}
+body{overflow:hidden;font-family:'Rajdhani',sans-serif;background:#87ceeb;touch-action:none;user-select:none;}
 canvas{display:block;}
 
 #ui{
@@ -28,11 +28,10 @@ canvas{display:block;}
   background:rgba(0,0,0,0.09);border:none;
   padding:6px 10px;border-radius:9px;cursor:pointer;
   font-size:clamp(10px,2.2vw,12px);font-family:'Rajdhani',sans-serif;
-  transition:background .2s;white-space:nowrap;
+  transition:background .2s;white-space:nowrap;color:#333;
 }
 .ui-btn:active{background:rgba(0,0,0,0.2);}
 .ui-btn.home{background:rgba(91,163,245,.15);color:#2060c0;}
-.ui-btn.home:active{background:rgba(91,163,245,.3);}
 
 #chat{
   position:absolute;bottom:10px;left:10px;
@@ -53,31 +52,46 @@ canvas{display:block;}
   font-size:clamp(12px,3vw,13px);outline:none;font-family:'Rajdhani',sans-serif;
 }
 
-/* MOBILE CONTROLS */
+/* ── MOBILE CONTROLS ── */
 #controls{
-  position:absolute;bottom:0;right:0;
-  display:none;padding:12px;z-index:10;
+  position:fixed;bottom:0;right:0;
+  display:none;padding:14px 14px 20px 14px;
+  z-index:20;
+  /* prevent any default touch behavior on the controls area */
+  touch-action:none;
 }
-.ctrl-top{display:flex;justify-content:center;margin-bottom:8px;}
-.ctrl-bot{display:flex;gap:10px;}
+.ctrl-top{display:flex;justify-content:center;margin-bottom:10px;}
+.ctrl-bot{display:flex;gap:12px;}
 .btn{
-  width:clamp(62px,15vw,76px);height:clamp(62px,15vw,76px);
-  background:rgba(255,255,255,0.65);
-  backdrop-filter:blur(8px);
-  border:2px solid rgba(255,255,255,0.9);
-  border-radius:18px;
+  width:clamp(66px,16vw,80px);
+  height:clamp(66px,16vw,80px);
+  background:rgba(255,255,255,0.7);
+  border:2.5px solid rgba(255,255,255,0.95);
+  border-radius:20px;
   display:flex;align-items:center;justify-content:center;
-  font-size:clamp(24px,5.5vw,30px);
-  cursor:pointer;user-select:none;
-  box-shadow:0 4px 14px rgba(0,0,0,0.18);
-  transition:background .1s,transform .1s;
-  /* Fix: no pointer events on children */
-  pointer-events:auto;
+  font-size:clamp(26px,6vw,32px);
+  cursor:pointer;
+  box-shadow:0 4px 16px rgba(0,0,0,0.2);
+  transition:transform .08s,background .08s;
+  /* CRITICAL: prevent touch from propagating / causing zoom */
+  touch-action:none;
+  user-select:none;
+  -webkit-user-select:none;
 }
-.btn *{pointer-events:none;}
-.btn.pressed{background:rgba(255,255,255,0.95);transform:scale(0.91);}
+.btn.pressed{background:rgba(255,255,255,0.97);transform:scale(0.89);box-shadow:0 2px 8px rgba(0,0,0,0.25);}
 
-#keys-hint{position:absolute;bottom:10px;right:10px;font-size:11px;color:rgba(0,0,0,0.3);z-index:10;}
+#footer{
+  position:fixed;bottom:6px;left:0;right:0;
+  text-align:center;
+  font-size:10px;color:rgba(0,0,0,0.28);
+  pointer-events:none;z-index:5;
+  letter-spacing:.5px;
+}
+
+#keys-hint{
+  position:fixed;bottom:8px;right:12px;
+  font-size:11px;color:rgba(0,0,0,0.28);z-index:5;
+}
 </style>
 </head>
 <body>
@@ -90,7 +104,7 @@ canvas{display:block;}
     ⏱<span id="timer">--:--</span>
   </div>
   <div class="ui-btns">
-    <button class="ui-btn home" onclick="goHome()">🏠 Home</button>
+    <button class="ui-btn home" onclick="goHome()">🏠</button>
     <button class="ui-btn" onclick="doLogout()">Logout</button>
   </div>
 </div>
@@ -101,41 +115,46 @@ canvas{display:block;}
 </div>
 
 <div id="controls">
-  <div class="ctrl-top"><div class="btn" id="btnJump">⬆️</div></div>
+  <div class="ctrl-top">
+    <div class="btn" id="btnJump">⬆️</div>
+  </div>
   <div class="ctrl-bot">
     <div class="btn" id="btnLeft">⬅️</div>
     <div class="btn" id="btnRight">➡️</div>
   </div>
 </div>
 
+<div id="footer">© coikinator / Sandro Evrard — All rights reserved</div>
 <div id="keys-hint">WASD / Arrows · Space to jump</div>
+
 <canvas id="c"></canvas>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-const socket = io();
+// ══════════════════════════════════════════════
+//  AUTH
+// ══════════════════════════════════════════════
+const socket   = io();
 const username = localStorage.getItem('username');
 const token    = localStorage.getItem('token');
-if (!username) location.href = '/login.html';
+if (!username) { location.href = '/login.html'; }
 document.getElementById('nameDisplay').innerText = '👤 ' + username;
-
 function goHome()   { location.href = '/'; }
 function doLogout() { localStorage.clear(); location.href = '/login.html'; }
 
-// ─── CHAT BUBBLES (stacked, animated)
-// Each player: array of bubbles [{text, born}]
-const chatBubbles = {}; // id -> [{text,born}, ...]
+// ══════════════════════════════════════════════
+//  CHAT BUBBLES
+// ══════════════════════════════════════════════
+const chatBubbles = {}; // socketId -> [{text, born}]
 
 socket.on('chat', data => {
   const d = document.createElement('div');
-  d.innerHTML = `<span>${data.username}:</span> ${data.text}`;
+  d.innerHTML = '<span>' + data.username + ':</span> ' + data.text;
   const msgs = document.getElementById('msgs');
   msgs.appendChild(d);
   msgs.scrollTop = msgs.scrollHeight;
-
   if (!chatBubbles[data.id]) chatBubbles[data.id] = [];
   chatBubbles[data.id].push({ text: data.text, born: Date.now() });
-  // max 4 bubbles per player
   if (chatBubbles[data.id].length > 4) chatBubbles[data.id].shift();
 });
 
@@ -146,168 +165,213 @@ document.getElementById('msg').addEventListener('keydown', e => {
   }
 });
 
-// ─── INPUT (held)
-const keys = { left:false, right:false, jump:false };
-let lastSent = '';
-function sendInput() {
-  const s = JSON.stringify(keys);
-  if (s !== lastSent) { socket.emit('input', {...keys}); lastSent = s; }
-}
-setInterval(sendInput, 1000/60);
+// ══════════════════════════════════════════════
+//  INPUT — THE FIX
+//  Key idea: we track a boolean state for each
+//  direction and send it every frame via interval.
+//  Both keyboard AND touch update the same state.
+// ══════════════════════════════════════════════
+const keys = { left: false, right: false, jump: false };
+let _lastSent = '';
 
+// Send input 60 times/sec regardless
+setInterval(() => {
+  const s = JSON.stringify(keys);
+  if (s !== _lastSent) {
+    socket.emit('input', { left: keys.left, right: keys.right, jump: keys.jump });
+    _lastSent = s;
+  }
+}, 1000 / 60);
+
+// ── KEYBOARD (held = continuous)
 document.addEventListener('keydown', e => {
+  // Don't capture when typing in chat
   if (document.activeElement === document.getElementById('msg')) return;
-  if (e.key==='a'||e.key==='ArrowLeft')            { keys.left=true; keys.right=false; }
-  if (e.key==='d'||e.key==='ArrowRight')            { keys.right=true; keys.left=false; }
-  if (e.key===' '||e.key==='w'||e.key==='ArrowUp')  { keys.jump=true; e.preventDefault(); }
+  if (e.key === 'a' || e.key === 'ArrowLeft')              { keys.left = true;  keys.right = false; }
+  if (e.key === 'd' || e.key === 'ArrowRight')             { keys.right = true; keys.left  = false; }
+  if (e.key === ' ' || e.key === 'w' || e.key === 'ArrowUp') { keys.jump = true; e.preventDefault(); }
 });
 document.addEventListener('keyup', e => {
-  if (e.key==='a'||e.key==='ArrowLeft')            keys.left=false;
-  if (e.key==='d'||e.key==='ArrowRight')           keys.right=false;
-  if (e.key===' '||e.key==='w'||e.key==='ArrowUp') keys.jump=false;
+  if (e.key === 'a' || e.key === 'ArrowLeft')               keys.left  = false;
+  if (e.key === 'd' || e.key === 'ArrowRight')              keys.right = false;
+  if (e.key === ' ' || e.key === 'w' || e.key === 'ArrowUp') keys.jump = false;
 });
 
-// ─── MOBILE
-const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 768;
+// ── MOBILE DETECTION
+const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || ('ontouchstart' in window);
 if (isMobile) {
   document.getElementById('controls').style.display = 'block';
   document.getElementById('keys-hint').style.display = 'none';
+  document.getElementById('footer').style.bottom = '100px'; // move above buttons
 }
 
-function mobileBtn(id, keyName) {
+// ── MOBILE BUTTONS
+// Uses pointerId capture so the hold works even if finger slides
+function setupBtn(id, keyName) {
   const el = document.getElementById(id);
-  const on  = e => { e.preventDefault(); e.stopPropagation(); keys[keyName]=true;  el.classList.add('pressed'); };
-  const off = e => { e.preventDefault(); e.stopPropagation(); keys[keyName]=false; el.classList.remove('pressed'); };
-  // Use pointer events — works for both touch and mouse, no conflicts
-  el.addEventListener('pointerdown',  on,  {passive:false});
-  el.addEventListener('pointerup',    off, {passive:false});
-  el.addEventListener('pointercancel',off, {passive:false});
-  el.addEventListener('pointerleave', off, {passive:false});
-  el.setPointerCapture && el.addEventListener('pointerdown', e => { try{el.setPointerCapture(e.pointerId);}catch(x){} });
-}
-mobileBtn('btnLeft','left');
-mobileBtn('btnRight','right');
-mobileBtn('btnJump','jump');
 
-// ─── GAME STATE
+  el.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    el.setPointerCapture(e.pointerId); // capture so pointerup fires even if finger drifts
+    keys[keyName] = true;
+    el.classList.add('pressed');
+  }, { passive: false });
+
+  el.addEventListener('pointerup', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    keys[keyName] = false;
+    el.classList.remove('pressed');
+  }, { passive: false });
+
+  el.addEventListener('pointercancel', e => {
+    keys[keyName] = false;
+    el.classList.remove('pressed');
+  });
+
+  // Safety: if pointer leaves while captured, release
+  el.addEventListener('lostpointercapture', () => {
+    keys[keyName] = false;
+    el.classList.remove('pressed');
+  });
+}
+
+setupBtn('btnLeft',  'left');
+setupBtn('btnRight', 'right');
+setupBtn('btnJump',  'jump');
+
+// ══════════════════════════════════════════════
+//  GAME STATE
+// ══════════════════════════════════════════════
 let players = {}, camX = 0;
+
 socket.emit('join', { username });
+
 socket.on('players', p => {
   players = p;
   for (let id in p) {
     if (p[id].username === username) {
       document.getElementById('coins').innerText = p[id].coins ?? 0;
-      const t=p[id].timeLeft??600000;
-      const m=Math.floor(t/60000),s=Math.floor((t%60000)/1000);
-      document.getElementById('timer').innerText=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+      const t = p[id].timeLeft ?? 600000;
+      const m = Math.floor(t / 60000), s = Math.floor((t % 60000) / 1000);
+      document.getElementById('timer').innerText =
+        String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
     }
   }
 });
 
-// ─── CANVAS
-const c=document.getElementById('c'), ctx=c.getContext('2d');
-function resize(){c.width=innerWidth;c.height=innerHeight;}
-resize(); window.addEventListener('resize',resize);
+socket.on('kicked', () => {
+  alert('You were kicked from another device.');
+  location.href = '/';
+});
 
-const GROUND_Y=500, WORLD_W=2020;
-const COLORS=['#2980b9','#e74c3c','#27ae60','#8e44ad','#e67e22','#16a085','#c0392b','#f39c12'];
-const playerColors={}; let colorIdx=0;
-function getColor(k){if(!playerColors[k])playerColors[k]=COLORS[colorIdx++%COLORS.length];return playerColors[k];}
+// ══════════════════════════════════════════════
+//  CANVAS & RENDER
+// ══════════════════════════════════════════════
+const c = document.getElementById('c');
+const ctx = c.getContext('2d');
+function resize() { c.width = innerWidth; c.height = innerHeight; }
+resize(); window.addEventListener('resize', resize);
 
-function drawSky(){
-  const g=ctx.createLinearGradient(0,0,0,c.height);
-  g.addColorStop(0,'#87ceeb');g.addColorStop(1,'#dff6ff');
-  ctx.fillStyle=g;ctx.fillRect(0,0,c.width,c.height);
-  ctx.fillStyle='rgba(255,255,255,0.75)';
-  [200,500,900,1300,1700].forEach(bx=>{
-    const rx=((bx-camX*0.3)%(WORLD_W+400))-100;
-    cloud(rx,80);cloud(rx+30,130);
+const GROUND_Y = 500, WORLD_W = 2020;
+const COLORS = ['#2980b9','#e74c3c','#27ae60','#8e44ad','#e67e22','#16a085','#c0392b','#f39c12'];
+const playerColors = {}; let colorIdx = 0;
+function getColor(k) {
+  if (!playerColors[k]) playerColors[k] = COLORS[colorIdx++ % COLORS.length];
+  return playerColors[k];
+}
+
+function drawSky() {
+  const g = ctx.createLinearGradient(0,0,0,c.height);
+  g.addColorStop(0,'#87ceeb'); g.addColorStop(1,'#dff6ff');
+  ctx.fillStyle = g; ctx.fillRect(0,0,c.width,c.height);
+  ctx.fillStyle = 'rgba(255,255,255,0.75)';
+  [200,500,900,1300,1700].forEach(bx => {
+    const rx = ((bx - camX * 0.3) % (WORLD_W + 400)) - 100;
+    cloud(rx, 80); cloud(rx + 30, 130);
   });
 }
-function cloud(x,y){
-  ctx.beginPath();ctx.arc(x,y,28,0,Math.PI*2);
-  ctx.arc(x+30,y-10,22,0,Math.PI*2);ctx.arc(x+60,y,25,0,Math.PI*2);ctx.fill();
+function cloud(x,y) {
+  ctx.beginPath();
+  ctx.arc(x,y,28,0,Math.PI*2); ctx.arc(x+30,y-10,22,0,Math.PI*2); ctx.arc(x+60,y,25,0,Math.PI*2);
+  ctx.fill();
 }
-function drawWorld(){
-  const ox=-camX;
-  const g=ctx.createLinearGradient(0,GROUND_Y,0,GROUND_Y+120);
-  g.addColorStop(0,'#5dbb5d');g.addColorStop(0.12,'#4cae4c');g.addColorStop(1,'#3d8b3d');
-  ctx.fillStyle=g;ctx.fillRect(ox,GROUND_Y,WORLD_W,c.height);
-  ctx.strokeStyle='#6fd46f';ctx.lineWidth=3;
-  ctx.beginPath();ctx.moveTo(ox,GROUND_Y);ctx.lineTo(ox+WORLD_W,GROUND_Y);ctx.stroke();
-  [100,280,500,750,1000,1250,1500,1750,1950].forEach(tx=>{
-    const x=tx+ox;
-    ctx.fillStyle='#6b3a1f';ctx.fillRect(x-8,GROUND_Y-55,16,60);
-    ctx.fillStyle='#2ecc71';ctx.beginPath();ctx.arc(x,GROUND_Y-80,34,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#27ae60';ctx.beginPath();ctx.arc(x-10,GROUND_Y-100,22,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.arc(x+12,GROUND_Y-95,20,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#1e8449';ctx.beginPath();ctx.arc(x,GROUND_Y-110,16,0,Math.PI*2);ctx.fill();
+
+function drawWorld() {
+  const ox = -camX;
+  const g = ctx.createLinearGradient(0,GROUND_Y,0,GROUND_Y+120);
+  g.addColorStop(0,'#5dbb5d'); g.addColorStop(0.12,'#4cae4c'); g.addColorStop(1,'#3d8b3d');
+  ctx.fillStyle = g; ctx.fillRect(ox, GROUND_Y, WORLD_W, c.height);
+  ctx.strokeStyle = '#6fd46f'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(ox,GROUND_Y); ctx.lineTo(ox+WORLD_W,GROUND_Y); ctx.stroke();
+
+  [100,280,500,750,1000,1250,1500,1750,1950].forEach(tx => {
+    const x = tx + ox;
+    ctx.fillStyle='#6b3a1f'; ctx.fillRect(x-8,GROUND_Y-55,16,60);
+    ctx.fillStyle='#2ecc71'; ctx.beginPath(); ctx.arc(x,GROUND_Y-80,34,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#27ae60';
+    ctx.beginPath(); ctx.arc(x-10,GROUND_Y-100,22,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x+12,GROUND_Y-95,20,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#1e8449'; ctx.beginPath(); ctx.arc(x,GROUND_Y-110,16,0,Math.PI*2); ctx.fill();
   });
+
   [{x:350,y:380,w:120},{x:700,y:330,w:140},{x:1050,y:370,w:110},
-   {x:1350,y:310,w:150},{x:1650,y:360,w:130},{x:1850,y:290,w:100}].forEach(pl=>{
-    const px=pl.x+ox;
-    ctx.fillStyle='#8b5e3c';ctx.fillRect(px,pl.y+12,pl.w,16);
-    ctx.fillStyle='#5dbb5d';ctx.fillRect(px,pl.y,pl.w,14);
-    ctx.strokeStyle='#4cae4c';ctx.lineWidth=1.5;ctx.strokeRect(px,pl.y,pl.w,14);
+   {x:1350,y:310,w:150},{x:1650,y:360,w:130},{x:1850,y:290,w:100}].forEach(pl => {
+    const px = pl.x + ox;
+    ctx.fillStyle='#8b5e3c'; ctx.fillRect(px,pl.y+12,pl.w,16);
+    ctx.fillStyle='#5dbb5d'; ctx.fillRect(px,pl.y,pl.w,14);
+    ctx.strokeStyle='#4cae4c'; ctx.lineWidth=1.5; ctx.strokeRect(px,pl.y,pl.w,14);
   });
 }
 
+// ── Stacked chat bubbles
 function drawBubbles(p, px, py) {
   const now = Date.now();
   const arr = chatBubbles[p.id];
   if (!arr || arr.length === 0) return;
-
-  // Clean expired
   while (arr.length > 0 && now - arr[0].born > 4000) arr.shift();
   if (arr.length === 0) return;
 
+  const BH = 26, GAP = 4;
+  const color = getColor(p.id || p.username);
   ctx.font = 'bold 12px Rajdhani, sans-serif';
   ctx.textAlign = 'center';
-  const color = getColor(p.id || p.username);
 
-  // Draw from bottom (newest) to top (oldest), stacked
-  const BH = 26, GAP = 4;
   arr.forEach((bub, i) => {
     const age  = now - bub.born;
     const fade = age < 3200 ? 1 : 1 - (age - 3200) / 800;
     if (fade <= 0) return;
-
-    // i=0 is oldest (top), last is newest (bottom, closest to head)
-    const stackIdx = arr.length - 1 - i; // 0=newest closest to head
+    const stackIdx = arr.length - 1 - i; // 0 = newest = closest to head
     const by = py - 110 - stackIdx * (BH + GAP);
-
-    const txt  = bub.text.length > 22 ? bub.text.slice(0, 22) + '…' : bub.text;
-    const tw   = ctx.measureText(txt).width;
-    const bw   = tw + 18;
-    const bx   = px - bw / 2;
+    const txt = bub.text.length > 22 ? bub.text.slice(0,22) + '…' : bub.text;
+    const bw  = ctx.measureText(txt).width + 18;
+    const bx  = px - bw / 2;
+    const r   = 8;
 
     ctx.globalAlpha = fade;
     ctx.fillStyle = '#fff';
     ctx.beginPath();
-    // rounded rect manually
-    const r = 8;
-    ctx.moveTo(bx+r, by); ctx.lineTo(bx+bw-r, by);
+    ctx.moveTo(bx+r,by); ctx.lineTo(bx+bw-r,by);
     ctx.quadraticCurveTo(bx+bw,by,bx+bw,by+r);
-    ctx.lineTo(bx+bw, by+BH-r); ctx.quadraticCurveTo(bx+bw,by+BH,bx+bw-r,by+BH);
-    ctx.lineTo(bx+r, by+BH); ctx.quadraticCurveTo(bx,by+BH,bx,by+BH-r);
-    ctx.lineTo(bx, by+r); ctx.quadraticCurveTo(bx,by,bx+r,by);
+    ctx.lineTo(bx+bw,by+BH-r); ctx.quadraticCurveTo(bx+bw,by+BH,bx+bw-r,by+BH);
+    ctx.lineTo(bx+r,by+BH); ctx.quadraticCurveTo(bx,by+BH,bx,by+BH-r);
+    ctx.lineTo(bx,by+r); ctx.quadraticCurveTo(bx,by,bx+r,by);
     ctx.closePath(); ctx.fill();
     ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.stroke();
 
-    // Tail only on newest (stackIdx===0)
     if (stackIdx === 0) {
       ctx.beginPath();
-      ctx.moveTo(px-5, by+BH); ctx.lineTo(px+5, by+BH); ctx.lineTo(px, by+BH+8);
+      ctx.moveTo(px-5,by+BH); ctx.lineTo(px+5,by+BH); ctx.lineTo(px,by+BH+8);
       ctx.closePath(); ctx.fillStyle='#fff'; ctx.fill();
       ctx.strokeStyle=color; ctx.lineWidth=1.5; ctx.stroke();
     }
-
-    ctx.fillStyle='#111';
-    ctx.fillText(txt, px, by + 17);
+    ctx.fillStyle='#111'; ctx.fillText(txt, px, by+17);
     ctx.globalAlpha = 1;
   });
 }
 
+// ── Stickman
 function drawStickman(p) {
   const ox=-camX, px=p.x+ox, py=p.y;
   const t=p.anim||0, facing=p.facing||1;
@@ -317,7 +381,6 @@ function drawStickman(p) {
 
   drawBubbles(p, px, py);
 
-  // Name tag
   ctx.font='11px Rajdhani, sans-serif'; ctx.textAlign='center';
   const nw=ctx.measureText(p.username).width+10;
   ctx.fillStyle='rgba(0,0,0,0.42)'; ctx.fillRect(px-nw/2,py-78,nw,17);
@@ -341,16 +404,17 @@ function drawStickman(p) {
   ctx.restore();
 }
 
-function loop(){
-  for(let id in players){
-    if(players[id].username===username){
-      const target=players[id].x-c.width/2;
-      camX+=(target-camX)*0.1;
-      camX=Math.max(0,Math.min(WORLD_W-c.width,camX));
+// ── Main loop
+function loop() {
+  for (let id in players) {
+    if (players[id].username === username) {
+      const target = players[id].x - c.width / 2;
+      camX += (target - camX) * 0.1;
+      camX = Math.max(0, Math.min(WORLD_W - c.width, camX));
     }
   }
   drawSky(); drawWorld();
-  for(let id in players) drawStickman(players[id]);
+  for (let id in players) drawStickman(players[id]);
   requestAnimationFrame(loop);
 }
 loop();
