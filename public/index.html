@@ -6,6 +6,19 @@
 <title>StickWorld — Home</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+.logo-icon{
+  width:70px;
+  height:70px;
+  margin:0 auto 14px;
+  
+  background:url("https://stickworld.neocities.org/favicon.png") center/cover no-repeat;
+  
+  border-radius:16px;
+  box-shadow:
+    0 0 25px rgba(91,163,245,0.6),
+    0 0 60px rgba(91,163,245,0.2);
+}
+  
 *{margin:0;padding:0;box-sizing:border-box;}
 :root{
   --sky1:#1a2a4a;--sky2:#0d1520;
@@ -205,10 +218,11 @@ body::before{
 <canvas class="bg-stick" id="bgCanvas"></canvas>
 
 <div class="container">
-  <div class="logo-wrap">
-    <div class="logo">STICK<span>WORLD</span></div>
-    <div class="tagline">Multiplayer Stickman Universe</div>
-  </div>
+<div class="logo-wrap">
+  <div class="logo-icon"></div>
+  <div class="logo">STICK<span>WORLD</span></div>
+  <div class="tagline">Multiplayer Stickman Universe</div>
+</div>
 
   <canvas class="preview" id="previewCanvas" width="420" height="100"></canvas>
 
