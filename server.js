@@ -13,171 +13,146 @@ const io = socketio(server);
 const JWT_SECRET = 'stickworld_secret_key_2024';
 const MONGO_URI = process.env.MONGO_URI;
 
-/* DB */
 mongoose.connect(MONGO_URI);
 
-/* USER MODEL */
 const UserSchema = new mongoose.Schema({
   username: { type: String, unique: true },
   password: String
 });
 const User = mongoose.model('User', UserSchema);
 
-/* STATIC */
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
-/* REGISTER */
 app.post('/api/register', async (req, res) => {
   try {
     const { username, password } = req.body;
     const hashed = await bcrypt.hash(password, 10);
-
     const user = new User({ username, password: hashed });
     await user.save();
-
     const token = jwt.sign({ username }, JWT_SECRET);
     res.json({ token, username });
-
   } catch (e) {
     res.status(400).json({ error: 'Username already taken' });
   }
 });
 
-/* LOGIN */
 app.post('/api/login', async (req, res) => {
   try {
     const { username, password } = req.body;
-
     const user = await User.findOne({ username });
     if (!user) return res.status(400).json({ error: 'User not found' });
-
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) return res.status(400).json({ error: 'Wrong password' });
-
     const token = jwt.sign({ username }, JWT_SECRET);
     res.json({ token, username });
-
   } catch (e) {
     res.status(500).json({ error: 'Server error' });
   }
 });
 
-/* =========================
-   GAME STATE
-========================= */
 const players = {};
+const GROUND = 500;
+const GRAVITY = 0.7;
+const FRICTION = 0.82;
+const MOVE_SPEED = 7;
+const JUMP_FORCE = -15;
 
-/* =========================
-   SOCKET
-========================= */
 io.on('connection', (socket) => {
-
-  /* JOIN (FIXED SPAWN + SAFE INIT) */
   socket.on('join', (data) => {
-
     players[socket.id] = {
       id: socket.id,
       username: data.username,
-
-      x: 300,
-      y: 500,
-      tx: 300,
-
+      x: 200 + Math.random() * 400,
+      y: GROUND,
+      vx: 0,
       vy: 0,
       onGround: true,
-
       anim: 0,
-
+      facing: 1,
+      moving: false,
       coins: 0,
-
       lastReward: Date.now(),
       timeLeft: 600000
     };
-
     io.emit('players', players);
   });
 
-  /* MOVE (ONLY X CONTROL) */
-  socket.on('move', (data) => {
+  socket.on('input', (data) => {
     const p = players[socket.id];
     if (!p) return;
-
-    if (typeof data.x === "number") {
-      p.tx = data.x;
+    // data.left, data.right, data.jump (booleans)
+    if (data.left) {
+      p.vx -= MOVE_SPEED;
+      p.facing = -1;
+      p.moving = true;
+    } else if (data.right) {
+      p.vx += MOVE_SPEED;
+      p.facing = 1;
+      p.moving = true;
+    } else {
+      p.moving = false;
     }
-  });
-
-  /* JUMP */
-  socket.on('jump', () => {
-    const p = players[socket.id];
-    if (!p) return;
-
-    if (p.onGround) {
-      p.vy = -12;
+    if (data.jump && p.onGround) {
+      p.vy = JUMP_FORCE;
       p.onGround = false;
     }
   });
 
-  /* CHAT */
   socket.on('chat', (data) => {
     const p = players[socket.id];
     if (!p) return;
-
-    io.emit('chat', {
-      id: socket.id,
-      username: p.username,
-      text: data.text
-    });
+    io.emit('chat', { id: socket.id, username: p.username, text: data.text });
   });
 
-  /* DISCONNECT */
   socket.on('disconnect', () => {
     delete players[socket.id];
     io.emit('players', players);
   });
 });
 
-/* =========================
-   GAME LOOP (FIXED PHYSICS + TIMER + COINS)
-========================= */
+// Game loop at 60fps
 setInterval(() => {
-
   const now = Date.now();
-  const ground = 500;
 
   for (let id in players) {
     const p = players[id];
-    if (!p) continue;
 
-    /* SMOOTH MOVEMENT */
-    p.x += (p.tx - p.x) * 0.25;
+    // Friction
+    p.vx *= FRICTION;
+    if (Math.abs(p.vx) < 0.1) p.vx = 0;
 
-    /* GRAVITY */
-    p.vy += 0.6;
+    // Gravity
+    p.vy += GRAVITY;
+
+    // Move
+    p.x += p.vx;
     p.y += p.vy;
 
-    /* GROUND FIX */
-    if (p.y >= ground) {
-      p.y = ground;
+    // Ground collision
+    if (p.y >= GROUND) {
+      p.y = GROUND;
       p.vy = 0;
       p.onGround = true;
     }
 
-    /* ANIMATION */
-    p.anim += 0.2;
+    // Wall bounds
+    if (p.x < 20) { p.x = 20; p.vx = 0; }
+    if (p.x > 2000) { p.x = 2000; p.vx = 0; }
 
-    /* TIMER FIX (NO RESET BUG) */
-    if (!p.lastReward) p.lastReward = now;
+    // Animation — only advance when actually moving
+    if (Math.abs(p.vx) > 0.5) {
+      p.anim += 0.18 * Math.abs(p.vx) / MOVE_SPEED;
+    } else {
+      // Idle breathing
+      p.anim += 0.04;
+    }
 
+    // Coins
     const timeLeft = 600000 - (now - p.lastReward);
     p.timeLeft = Math.max(0, timeLeft);
-
-    /* COINS */
     if (timeLeft <= 0) {
       p.coins += 50;
       p.lastReward = now;
@@ -185,11 +160,7 @@ setInterval(() => {
   }
 
   io.emit('players', players);
+}, 1000 / 60);
 
-}, 1000 / 30);
-
-/* START */
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log('StickWorld running on port ' + PORT);
-});
+server.listen(PORT, () => console.log('StickWorld running on port ' + PORT));
