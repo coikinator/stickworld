@@ -1,321 +1,343 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>StickWorld</title>
+<title>StickWorld — Home</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-body { overflow:hidden; font-family: 'Segoe UI', Arial, sans-serif; background:#87ceeb; touch-action:none; }
-canvas { display:block; }
-
-#ui {
-  position:absolute; top:10px; left:10px; right:10px;
-  display:flex; justify-content:space-between; align-items:center;
-  padding:8px 14px;
-  background:rgba(255,255,255,0.55);
-  backdrop-filter:blur(12px);
-  border-radius:14px;
-  border:1px solid rgba(255,255,255,0.7);
-  box-shadow:0 4px 20px rgba(0,0,0,0.08);
-  z-index:10;
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --sky1:#1a2a4a;--sky2:#0d1520;
+  --glass:rgba(255,255,255,0.07);
+  --border:rgba(100,180,255,0.18);
+  --accent:#5ba3f5;--accent2:#ff6b6b;
+  --text:#c8daf8;--muted:#4a6a9a;
 }
-#ui .logo { font-size:clamp(13px,3vw,18px); font-weight:700; color:#333; white-space:nowrap; }
-#ui .info { font-size:clamp(10px,2.5vw,13px); color:#444; text-align:center; }
-#ui button {
-  background:rgba(0,0,0,0.1); border:none; padding:6px 12px;
-  border-radius:10px; cursor:pointer; font-size:clamp(11px,2.5vw,13px);
-  transition:background .2s; white-space:nowrap;
-}
-#ui button:active { background:rgba(0,0,0,0.25); }
-
-#chat {
-  position:absolute; bottom:10px; left:10px;
-  width:min(260px, 42vw);
-  background:rgba(255,255,255,0.55);
-  backdrop-filter:blur(12px);
-  border:1px solid rgba(255,255,255,0.7);
-  border-radius:14px; padding:8px;
-  box-shadow:0 4px 20px rgba(0,0,0,0.08);
-  z-index:10;
-}
-#msgs {
-  height:clamp(60px,12vh,110px);
-  overflow-y:auto; font-size:clamp(10px,2vw,12px); margin-bottom:6px;
-}
-#msgs div { padding:2px 0; color:#333; }
-#msgs div span { font-weight:600; }
-#msg {
-  width:100%; padding:6px 8px; border-radius:8px;
-  border:1px solid rgba(0,0,0,0.15); background:rgba(255,255,255,0.8);
-  font-size:clamp(12px,3vw,13px); outline:none;
+html,body{height:100%;overflow:hidden;}
+body{
+  font-family:'Rajdhani',sans-serif;
+  background:linear-gradient(160deg,var(--sky1) 0%,var(--sky2) 100%);
+  color:var(--text);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;
 }
 
-#controls {
-  position:absolute; bottom:0; right:0;
-  display:none;
-  padding:14px;
-  z-index:10;
+/* Stars bg */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:
+    radial-gradient(1px 1px at 10% 15%,rgba(255,255,255,.6) 0%,transparent 100%),
+    radial-gradient(1px 1px at 30% 40%,rgba(255,255,255,.4) 0%,transparent 100%),
+    radial-gradient(1.5px 1.5px at 55% 20%,rgba(255,255,255,.5) 0%,transparent 100%),
+    radial-gradient(1px 1px at 75% 60%,rgba(255,255,255,.3) 0%,transparent 100%),
+    radial-gradient(1px 1px at 90% 10%,rgba(255,255,255,.5) 0%,transparent 100%),
+    radial-gradient(1px 1px at 20% 80%,rgba(255,255,255,.3) 0%,transparent 100%),
+    radial-gradient(1px 1px at 65% 85%,rgba(255,255,255,.4) 0%,transparent 100%),
+    radial-gradient(1px 1px at 42% 70%,rgba(255,255,255,.3) 0%,transparent 100%);
+  pointer-events:none;z-index:0;
 }
-.ctrl-top { display:flex; justify-content:center; margin-bottom:8px; }
-.ctrl-bot { display:flex; gap:10px; }
-.btn {
-  width:clamp(62px,15vw,76px);
-  height:clamp(62px,15vw,76px);
-  background:rgba(255,255,255,0.65);
-  backdrop-filter:blur(8px);
-  border:2px solid rgba(255,255,255,0.9);
+
+/* Floating stickmen in bg */
+.bg-stick{position:fixed;opacity:0.06;pointer-events:none;z-index:0;}
+
+.container{
+  position:relative;z-index:1;
+  width:min(420px,92vw);
+  display:flex;flex-direction:column;align-items:center;gap:0;
+}
+
+.logo-wrap{text-align:center;margin-bottom:32px;}
+.logo{
+  font-family:'Orbitron',monospace;
+  font-size:clamp(32px,8vw,52px);
+  font-weight:800;
+  letter-spacing:6px;
+  color:#fff;
+  text-shadow:0 0 40px rgba(91,163,245,.6),0 0 80px rgba(91,163,245,.2);
+  line-height:1;
+}
+.logo span{color:var(--accent2);}
+.tagline{
+  font-size:clamp(11px,2.5vw,13px);
+  color:var(--muted);
+  letter-spacing:3px;
+  margin-top:8px;
+  text-transform:uppercase;
+}
+
+/* Animated stickman preview */
+.preview{
+  width:100%;height:100px;
+  position:relative;margin-bottom:24px;
+  overflow:hidden;
+}
+.preview canvas{width:100%;height:100%;}
+
+.card{
+  width:100%;
+  background:linear-gradient(135deg,rgba(30,50,90,.85),rgba(15,28,60,.9));
+  border:1px solid var(--border);
   border-radius:18px;
-  display:flex; align-items:center; justify-content:center;
-  font-size:clamp(24px,5.5vw,30px);
-  cursor:pointer; user-select:none;
-  box-shadow:0 4px 14px rgba(0,0,0,0.18);
-  transition:background .1s, transform .1s;
+  padding:28px 28px;
+  box-shadow:0 8px 40px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.06);
+  backdrop-filter:blur(20px);
 }
-.btn.pressed { background:rgba(255,255,255,0.95); transform:scale(0.91); box-shadow:0 2px 6px rgba(0,0,0,0.2); }
 
-#keys-hint {
-  position:absolute; bottom:10px; right:10px;
-  font-size:11px; color:rgba(0,0,0,0.3); z-index:10;
+.card-title{
+  font-family:'Orbitron',monospace;
+  font-size:13px;letter-spacing:3px;
+  color:var(--muted);text-align:center;
+  margin-bottom:22px;text-transform:uppercase;
 }
+
+.user-info{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 16px;
+  background:rgba(91,163,245,.08);
+  border:1px solid rgba(91,163,245,.15);
+  border-radius:12px;
+  margin-bottom:20px;
+}
+.avatar{
+  width:44px;height:44px;
+  background:linear-gradient(135deg,var(--accent),#3a7adf);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;
+}
+.user-name{font-size:16px;font-weight:600;color:#fff;}
+.user-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+
+.btn-play{
+  width:100%;padding:14px;
+  background:linear-gradient(180deg,#2a6adf 0%,#1540a0 100%);
+  border:1px solid rgba(91,163,245,.4);
+  border-radius:12px;
+  color:#d0e8ff;
+  font-family:'Orbitron',monospace;
+  font-size:15px;letter-spacing:3px;
+  cursor:pointer;
+  box-shadow:0 4px 20px rgba(40,100,255,.3),inset 0 1px 0 rgba(255,255,255,.12);
+  transition:all .2s;
+  margin-bottom:12px;
+}
+.btn-play:hover{background:linear-gradient(180deg,#3a7aef 0%,#2050b0 100%);transform:translateY(-1px);}
+.btn-play:active{transform:translateY(0);}
+
+.btn-logout{
+  width:100%;padding:10px;
+  background:rgba(255,107,107,.08);
+  border:1px solid rgba(255,107,107,.2);
+  border-radius:12px;
+  color:rgba(255,150,150,.8);
+  font-family:'Rajdhani',sans-serif;
+  font-size:14px;letter-spacing:1px;
+  cursor:pointer;transition:all .2s;
+}
+.btn-logout:hover{background:rgba(255,107,107,.15);}
+
+/* Not logged in */
+.btn-register{
+  width:100%;padding:14px;
+  background:linear-gradient(180deg,#2a6adf 0%,#1540a0 100%);
+  border:1px solid rgba(91,163,245,.4);
+  border-radius:12px;
+  color:#d0e8ff;
+  font-family:'Orbitron',monospace;
+  font-size:14px;letter-spacing:2px;
+  cursor:pointer;
+  box-shadow:0 4px 20px rgba(40,100,255,.3),inset 0 1px 0 rgba(255,255,255,.12);
+  transition:all .2s;margin-bottom:10px;
+  text-decoration:none;display:block;text-align:center;
+}
+.btn-register:hover{background:linear-gradient(180deg,#3a7aef,#2050b0);transform:translateY(-1px);}
+.btn-login{
+  width:100%;padding:11px;
+  background:rgba(91,163,245,.08);
+  border:1px solid rgba(91,163,245,.2);
+  border-radius:12px;
+  color:var(--accent);
+  font-family:'Rajdhani',sans-serif;
+  font-size:15px;letter-spacing:1px;
+  cursor:pointer;transition:all .2s;
+  text-decoration:none;display:block;text-align:center;
+}
+.btn-login:hover{background:rgba(91,163,245,.15);}
+
+.footer{margin-top:20px;font-size:11px;color:var(--muted);text-align:center;letter-spacing:1px;}
+
+/* Modal overlay */
+.modal-bg{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,10,.7);backdrop-filter:blur(6px);
+  z-index:100;align-items:center;justify-content:center;
+}
+.modal-bg.open{display:flex;}
+.modal{
+  width:min(360px,88vw);
+  background:linear-gradient(135deg,rgba(25,40,80,.97),rgba(12,22,50,.98));
+  border:1px solid rgba(255,107,107,.25);
+  border-radius:18px;padding:28px;
+  box-shadow:0 20px 60px rgba(0,0,0,.6);
+  text-align:center;
+}
+.modal-icon{font-size:36px;margin-bottom:12px;}
+.modal-title{font-family:'Orbitron',monospace;font-size:15px;color:#ff9999;letter-spacing:2px;margin-bottom:10px;}
+.modal-text{font-size:13px;color:#8898b8;line-height:1.6;margin-bottom:22px;}
+.modal-btns{display:flex;flex-direction:column;gap:8px;}
+.modal-btn-yes{
+  padding:11px;background:rgba(255,80,80,.15);
+  border:1px solid rgba(255,80,80,.3);border-radius:10px;
+  color:#ff9999;font-size:13px;cursor:pointer;transition:all .2s;
+}
+.modal-btn-yes:hover{background:rgba(255,80,80,.25);}
+.modal-btn-no{
+  padding:11px;background:rgba(91,163,245,.08);
+  border:1px solid rgba(91,163,245,.2);border-radius:10px;
+  color:var(--accent);font-size:13px;cursor:pointer;transition:all .2s;
+}
+.modal-btn-no:hover{background:rgba(91,163,245,.15);}
 </style>
 </head>
 <body>
 
-<div id="ui">
-  <div class="logo">🌍 StickWorld</div>
-  <div class="info">
-    <div id="nameDisplay"></div>
-    💰 <span id="coins">0</span> &nbsp; ⏱ <span id="timer">--:--</span>
+<canvas class="bg-stick" id="bgCanvas"></canvas>
+
+<div class="container">
+  <div class="logo-wrap">
+    <div class="logo">STICK<span>WORLD</span></div>
+    <div class="tagline">Multiplayer Stickman Universe</div>
   </div>
-  <button onclick="logout()">Logout</button>
+
+  <canvas class="preview" id="previewCanvas" width="420" height="100"></canvas>
+
+  <!-- Logged in -->
+  <div class="card" id="cardLoggedIn" style="display:none">
+    <div class="card-title">Ready to Play</div>
+    <div class="user-info">
+      <div class="avatar">🕹️</div>
+      <div>
+        <div class="user-name" id="welcomeName"></div>
+        <div class="user-sub">Your stickman awaits</div>
+      </div>
+    </div>
+    <button class="btn-play" onclick="enterGame()">▶ ENTER WORLD</button>
+    <button class="btn-logout" onclick="doLogout()">Logout</button>
+  </div>
+
+  <!-- Not logged in -->
+  <div class="card" id="cardGuest">
+    <div class="card-title">Join the World</div>
+    <a class="btn-register" href="/register.html">CREATE ACCOUNT</a>
+    <a class="btn-login" href="/login.html">Already have an account? Sign in</a>
+  </div>
+
+  <div class="footer">Free to play · No downloads · Just fun</div>
 </div>
 
-<div id="chat">
-  <div id="msgs"></div>
-  <input id="msg" placeholder="Enter to chat..." autocomplete="off">
-</div>
-
-<div id="controls">
-  <div class="ctrl-top"><div class="btn" id="btnJump">⬆️</div></div>
-  <div class="ctrl-bot">
-    <div class="btn" id="btnLeft">⬅️</div>
-    <div class="btn" id="btnRight">➡️</div>
+<!-- Already in game modal -->
+<div class="modal-bg" id="alreadyModal">
+  <div class="modal">
+    <div class="modal-icon">⚠️</div>
+    <div class="modal-title">ALREADY IN GAME</div>
+    <div class="modal-text">You are already playing on another device.<br>Do you want to kick that session and play here?</div>
+    <div class="modal-btns">
+      <button class="modal-btn-yes" onclick="kickAndPlay()">Yes — play on this device</button>
+      <button class="modal-btn-no" onclick="closeModal()">No — go back</button>
+    </div>
   </div>
 </div>
 
-<div id="keys-hint">WASD / Arrows · Space to jump</div>
-<canvas id="c"></canvas>
-
-<script src="/socket.io/socket.io.js"></script>
 <script>
-const socket = io();
+const token = localStorage.getItem('token');
 const username = localStorage.getItem('username');
-if (!username) location.href = '/login.html';
-document.getElementById('nameDisplay').innerText = '👤 ' + username;
 
-// ─── CHAT BUBBLES
-const chatBubbles = {};
-socket.on('chat', data => {
-  const d = document.createElement('div');
-  d.innerHTML = `<span>${data.username}:</span> ${data.text}`;
-  const msgs = document.getElementById('msgs');
-  msgs.appendChild(d);
-  msgs.scrollTop = msgs.scrollHeight;
-  chatBubbles[data.id] = { text: data.text, born: Date.now() };
-});
-
-document.getElementById('msg').addEventListener('keydown', e => {
-  if (e.key === 'Enter' && e.target.value.trim()) {
-    socket.emit('chat', { text: e.target.value.trim() });
-    e.target.value = '';
-  }
-});
-
-// ─── INPUT
-const keys = { left:false, right:false, jump:false };
-let lastSent = '';
-function sendInput() {
-  const s = JSON.stringify(keys);
-  if (s !== lastSent) { socket.emit('input', {...keys}); lastSent = s; }
-}
-setInterval(sendInput, 1000/60);
-
-document.addEventListener('keydown', e => {
-  if (document.activeElement === document.getElementById('msg')) return;
-  if (e.key==='a'||e.key==='ArrowLeft')            { keys.left=true; keys.right=false; }
-  if (e.key==='d'||e.key==='ArrowRight')            { keys.right=true; keys.left=false; }
-  if (e.key===' '||e.key==='w'||e.key==='ArrowUp')  { keys.jump=true; e.preventDefault(); }
-});
-document.addEventListener('keyup', e => {
-  if (e.key==='a'||e.key==='ArrowLeft')            keys.left=false;
-  if (e.key==='d'||e.key==='ArrowRight')           keys.right=false;
-  if (e.key===' '||e.key==='w'||e.key==='ArrowUp') keys.jump=false;
-});
-
-// ─── MOBILE
-const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 768;
-if (isMobile) {
-  document.getElementById('controls').style.display = 'block';
-  document.getElementById('keys-hint').style.display = 'none';
+if (token && username) {
+  document.getElementById('cardLoggedIn').style.display = 'block';
+  document.getElementById('cardGuest').style.display = 'none';
+  document.getElementById('welcomeName').innerText = username;
 }
 
-function mobileBtn(id, keyName) {
-  const el = document.getElementById(id);
-  const on  = e => { e.preventDefault(); keys[keyName]=true;  el.classList.add('pressed'); };
-  const off = e => { e.preventDefault(); keys[keyName]=false; el.classList.remove('pressed'); };
-  el.addEventListener('touchstart',  on,  {passive:false});
-  el.addEventListener('touchend',    off, {passive:false});
-  el.addEventListener('touchcancel', off, {passive:false});
-  el.addEventListener('mousedown',   on);
-  el.addEventListener('mouseup',     off);
-  el.addEventListener('mouseleave',  off);
-}
-mobileBtn('btnLeft','left');
-mobileBtn('btnRight','right');
-mobileBtn('btnJump','jump');
-
-// ─── GAME STATE
-let players = {}, camX = 0;
-socket.emit('join', { username });
-socket.on('players', p => {
-  players = p;
-  for (let id in p) {
-    if (p[id].username === username) {
-      document.getElementById('coins').innerText = p[id].coins ?? 0;
-      const t = p[id].timeLeft ?? 600000;
-      const m = Math.floor(t/60000), s = Math.floor((t%60000)/1000);
-      document.getElementById('timer').innerText = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+async function enterGame() {
+  // Check if already in game
+  try {
+    const res = await fetch('/api/check-session', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await res.json();
+    if (data.alreadyInGame) {
+      document.getElementById('alreadyModal').classList.add('open');
+      return;
     }
-  }
-});
+  } catch(e) {}
+  window.location.href = '/game.html';
+}
 
-function logout() { localStorage.clear(); location.href='/login.html'; }
+async function kickAndPlay() {
+  try {
+    await fetch('/api/kick-session', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+  } catch(e) {}
+  document.getElementById('alreadyModal').classList.remove('open');
+  window.location.href = '/game.html';
+}
 
-// ─── CANVAS
-const c = document.getElementById('c');
-const ctx = c.getContext('2d');
-function resize() { c.width=innerWidth; c.height=innerHeight; }
-resize(); window.addEventListener('resize', resize);
+function closeModal() {
+  document.getElementById('alreadyModal').classList.remove('open');
+}
 
-const GROUND_Y=500, WORLD_W=2020;
-const COLORS=['#2980b9','#e74c3c','#27ae60','#8e44ad','#e67e22','#16a085','#c0392b','#f39c12'];
-const playerColors={}; let colorIdx=0;
-function getColor(k) { if(!playerColors[k]) playerColors[k]=COLORS[colorIdx++%COLORS.length]; return playerColors[k]; }
+function doLogout() {
+  localStorage.clear();
+  location.reload();
+}
 
-function drawSky() {
-  const g=ctx.createLinearGradient(0,0,0,c.height);
-  g.addColorStop(0,'#87ceeb'); g.addColorStop(1,'#dff6ff');
-  ctx.fillStyle=g; ctx.fillRect(0,0,c.width,c.height);
-  ctx.fillStyle='rgba(255,255,255,0.75)';
-  [200,500,900,1300,1700].forEach(bx=>{
-    const rx=((bx-camX*0.3)%(WORLD_W+400))-100;
-    cloud(rx,80); cloud(rx+30,130);
+// Preview animation
+const pc = document.getElementById('previewCanvas');
+const pctx = pc.getContext('2d');
+pc.width = pc.offsetWidth * devicePixelRatio;
+pc.height = pc.offsetHeight * devicePixelRatio;
+pctx.scale(devicePixelRatio, devicePixelRatio);
+const pw = pc.offsetWidth, ph = pc.offsetHeight;
+
+let pt = 0;
+const previewPlayers = [
+  {x:60,  color:'#5ba3f5', speed:1.2},
+  {x:160, color:'#ff6b6b', speed:0.9},
+  {x:280, color:'#2ecc71', speed:1.1},
+  {x:370, color:'#e67e22', speed:1.0},
+];
+
+function drawPreviewStick(x, t, color) {
+  const y = ph - 18;
+  const ls = Math.sin(t*Math.PI*2)*12;
+  const as = Math.sin(t*Math.PI*2)*10;
+  pctx.strokeStyle = color; pctx.lineWidth = 2; pctx.lineCap = 'round';
+  pctx.beginPath(); pctx.arc(x, y-34, 8, 0, Math.PI*2); pctx.stroke();
+  pctx.beginPath(); pctx.moveTo(x,y-26); pctx.lineTo(x,y-10); pctx.stroke();
+  pctx.beginPath(); pctx.moveTo(x,y-22); pctx.lineTo(x-10-as,y-14); pctx.stroke();
+  pctx.beginPath(); pctx.moveTo(x,y-22); pctx.lineTo(x+10+as,y-14); pctx.stroke();
+  pctx.beginPath(); pctx.moveTo(x,y-10); pctx.lineTo(x-7-ls*0.4,y-2); pctx.lineTo(x-8-ls*0.7,y+10); pctx.stroke();
+  pctx.beginPath(); pctx.moveTo(x,y-10); pctx.lineTo(x+7+ls*0.4,y-2); pctx.lineTo(x+8+ls*0.7,y+10); pctx.stroke();
+}
+
+function animPreview() {
+  pctx.clearRect(0,0,pw,ph);
+  // ground line
+  pctx.strokeStyle='rgba(91,163,245,0.2)'; pctx.lineWidth=1;
+  pctx.beginPath(); pctx.moveTo(0,ph-8); pctx.lineTo(pw,ph-8); pctx.stroke();
+
+  pt += 0.04;
+  previewPlayers.forEach(p => {
+    p.x += p.speed;
+    if (p.x > pw+20) p.x = -20;
+    drawPreviewStick(p.x, pt * p.speed, p.color);
   });
+  requestAnimationFrame(animPreview);
 }
-function cloud(x,y){
-  ctx.beginPath(); ctx.arc(x,y,28,0,Math.PI*2);
-  ctx.arc(x+30,y-10,22,0,Math.PI*2); ctx.arc(x+60,y,25,0,Math.PI*2); ctx.fill();
-}
-
-function drawWorld() {
-  const ox=-camX;
-  const g=ctx.createLinearGradient(0,GROUND_Y,0,GROUND_Y+120);
-  g.addColorStop(0,'#5dbb5d'); g.addColorStop(0.12,'#4cae4c'); g.addColorStop(1,'#3d8b3d');
-  ctx.fillStyle=g; ctx.fillRect(ox,GROUND_Y,WORLD_W,c.height);
-  ctx.strokeStyle='#6fd46f'; ctx.lineWidth=3;
-  ctx.beginPath(); ctx.moveTo(ox,GROUND_Y); ctx.lineTo(ox+WORLD_W,GROUND_Y); ctx.stroke();
-
-  [100,280,500,750,1000,1250,1500,1750,1950].forEach(tx=>{
-    const x=tx+ox;
-    ctx.fillStyle='#6b3a1f'; ctx.fillRect(x-8,GROUND_Y-55,16,60);
-    ctx.fillStyle='#2ecc71'; ctx.beginPath(); ctx.arc(x,GROUND_Y-80,34,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#27ae60'; ctx.beginPath(); ctx.arc(x-10,GROUND_Y-100,22,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(x+12,GROUND_Y-95,20,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#1e8449'; ctx.beginPath(); ctx.arc(x,GROUND_Y-110,16,0,Math.PI*2); ctx.fill();
-  });
-
-  [{x:350,y:380,w:120},{x:700,y:330,w:140},{x:1050,y:370,w:110},
-   {x:1350,y:310,w:150},{x:1650,y:360,w:130},{x:1850,y:290,w:100}].forEach(pl=>{
-    const px=pl.x+ox;
-    ctx.fillStyle='#8b5e3c'; ctx.fillRect(px,pl.y+12,pl.w,16);
-    ctx.fillStyle='#5dbb5d'; ctx.fillRect(px,pl.y,pl.w,14);
-    ctx.strokeStyle='#4cae4c'; ctx.lineWidth=1.5; ctx.strokeRect(px,pl.y,pl.w,14);
-  });
-}
-
-function drawStickman(p) {
-  const ox=-camX, px=p.x+ox, py=p.y;
-  const t=p.anim||0, facing=p.facing||1;
-  const moving=Math.abs(p.vx||0)>0.5;
-  const color=getColor(p.id||p.username);
-  const now=Date.now();
-  ctx.save();
-
-  // Chat bubble
-  const bub=chatBubbles[p.id];
-  if(bub){
-    const age=now-bub.born;
-    if(age<4000){
-      const fade=age<3400?1:1-(age-3400)/600;
-      const txt=bub.text.length>24?bub.text.slice(0,24)+'…':bub.text;
-      ctx.font='bold 12px Segoe UI'; ctx.textAlign='center';
-      const tw=ctx.measureText(txt).width;
-      const bw=tw+18,bh=26,bx=px-bw/2,by=py-112;
-      ctx.globalAlpha=fade;
-      // shadow
-      ctx.shadowColor='rgba(0,0,0,0.12)'; ctx.shadowBlur=6;
-      ctx.fillStyle='#fff';
-      ctx.beginPath(); ctx.roundRect(bx,by,bw,bh,9); ctx.fill();
-      ctx.shadowBlur=0;
-      ctx.strokeStyle=color; ctx.lineWidth=1.8; ctx.stroke();
-      // tail
-      ctx.beginPath(); ctx.moveTo(px-6,by+bh); ctx.lineTo(px+6,by+bh); ctx.lineTo(px,by+bh+9); ctx.closePath();
-      ctx.fillStyle='#fff'; ctx.fill(); ctx.strokeStyle=color; ctx.lineWidth=1.8; ctx.stroke();
-      ctx.fillStyle='#111'; ctx.fillText(txt,px,by+17);
-      ctx.globalAlpha=1;
-    } else {
-      delete chatBubbles[p.id];
-    }
-  }
-
-  // Name tag
-  ctx.font='11px Segoe UI'; ctx.textAlign='center';
-  const nw=ctx.measureText(p.username).width+10;
-  ctx.fillStyle='rgba(0,0,0,0.42)'; ctx.fillRect(px-nw/2,py-78,nw,17);
-  ctx.fillStyle='#fff'; ctx.fillText(p.username,px,py-65);
-
-  // Stickman
-  ctx.strokeStyle=color; ctx.lineWidth=2.5; ctx.lineCap='round';
-  ctx.beginPath(); ctx.arc(px,py-50,11,0,Math.PI*2); ctx.stroke();
-  ctx.fillStyle=color; ctx.beginPath(); ctx.arc(px+facing*4,py-52,2.2,0,Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.moveTo(px,py-39); ctx.lineTo(px,py-15); ctx.stroke();
-
-  let ls=0,as=0,lb=0;
-  if(moving&&p.onGround){ ls=Math.sin(t*Math.PI*2)*18; as=Math.sin(t*Math.PI*2)*14; lb=Math.abs(Math.sin(t*Math.PI*2))*8; }
-  else if(!p.onGround){ ls=-20; as=25; }
-  else { as=Math.sin(t)*3; }
-
-  ctx.beginPath(); ctx.moveTo(px,py-32); ctx.lineTo(px-14-as*facing,py-20); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(px,py-32); ctx.lineTo(px+14+as*facing,py-20); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(px,py-15); ctx.lineTo(px-8-ls*0.4,py+2-lb); ctx.lineTo(px-10-ls*0.7,py+18); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(px,py-15); ctx.lineTo(px+8+ls*0.4,py+2-lb); ctx.lineTo(px+10+ls*0.7,py+18); ctx.stroke();
-
-  ctx.restore();
-}
-
-function loop() {
-  for(let id in players){
-    if(players[id].username===username){
-      const target=players[id].x-c.width/2;
-      camX+=(target-camX)*0.1;
-      camX=Math.max(0,Math.min(WORLD_W-c.width,camX));
-    }
-  }
-  drawSky(); drawWorld();
-  for(let id in players) drawStickman(players[id]);
-  requestAnimationFrame(loop);
-}
-loop();
+animPreview();
 </script>
 </body>
 </html>
