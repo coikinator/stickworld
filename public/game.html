@@ -408,6 +408,11 @@ function drawStickman(p) {
   ctx.restore();
 }
 
+document.addEventListener("click", () => {
+  const music = document.getElementById("bgMusic");
+  music.play();
+}, { once: true });
+  
 // ── Main loop
 function loop() {
   for (let id in players) {
