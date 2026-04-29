@@ -2,285 +2,393 @@
 <html>
 <head>
 <title>StickWorld</title>
-
 <style>
-body {
-  margin: 0;
-  overflow: hidden;
-  font-family: Arial;
-  background: linear-gradient(#bfe9ff, #ffffff);
-}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { overflow:hidden; font-family: 'Segoe UI', Arial, sans-serif; background:#87ceeb; }
+canvas { display:block; }
 
-canvas {
-  display: block;
-}
-
-/* TOP BAR */
 #ui {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  right: 10px;
-
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  padding: 10px 15px;
-  background: rgba(255,255,255,0.6);
-  backdrop-filter: blur(10px);
-  border-radius: 14px;
+  position:absolute; top:10px; left:10px; right:10px;
+  display:flex; justify-content:space-between; align-items:center;
+  padding:10px 16px;
+  background:rgba(255,255,255,0.55);
+  backdrop-filter:blur(12px);
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,0.7);
+  box-shadow:0 4px 20px rgba(0,0,0,0.08);
 }
-
-button {
-  background: rgba(0,0,0,0.08);
-  border: none;
-  padding: 8px 14px;
-  border-radius: 10px;
-  cursor: pointer;
+#ui .logo { font-size:18px; font-weight:700; color:#333; }
+#ui .info { font-size:13px; color:#444; text-align:center; }
+#ui button {
+  background:rgba(0,0,0,0.1); border:none; padding:8px 16px;
+  border-radius:10px; cursor:pointer; font-size:13px;
+  transition:background .2s;
 }
+#ui button:hover { background:rgba(0,0,0,0.2); }
 
-/* CHAT */
 #chat {
-  position: absolute;
-  bottom: 10px;
-  left: 10px;
-  width: 250px;
-
-  background: rgba(255,255,255,0.6);
-  backdrop-filter: blur(10px);
-  border-radius: 12px;
-  padding: 10px;
+  position:absolute; bottom:10px; left:10px; width:260px;
+  background:rgba(255,255,255,0.55);
+  backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,0.7);
+  border-radius:14px; padding:10px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.08);
 }
-
-#msgs {
-  height: 110px;
-  overflow-y: auto;
-  font-size: 12px;
-}
-
+#msgs { height:110px; overflow-y:auto; font-size:12px; margin-bottom:6px; }
+#msgs div { padding:2px 0; color:#333; }
+#msgs div span { font-weight:600; }
 #msg {
-  width: 100%;
-  padding: 6px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+  width:100%; padding:7px 10px; border-radius:8px;
+  border:1px solid rgba(0,0,0,0.15); background:rgba(255,255,255,0.8);
+  font-size:13px; outline:none;
 }
 
-/* MOBILE */
 #controls {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  display: none;
-  grid-template-columns: 50px 50px 50px;
-  gap: 5px;
+  position:absolute; bottom:20px; right:20px;
+  display:none;
+  gap:6px; flex-direction:column; align-items:center;
 }
-
+.ctrl-row { display:flex; gap:6px; }
 .btn {
-  width: 50px;
-  height: 50px;
-  background: rgba(0,0,0,0.15);
-  border-radius: 10px;
-  text-align: center;
-  line-height: 50px;
-  user-select: none;
+  width:52px; height:52px;
+  background:rgba(255,255,255,0.5);
+  backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,0.7);
+  border-radius:12px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; cursor:pointer; user-select:none;
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
+  -webkit-tap-highlight-color:transparent;
+}
+.btn:active { background:rgba(255,255,255,0.8); }
+
+#keys-hint {
+  position:absolute; bottom:10px; right:10px;
+  font-size:11px; color:rgba(0,0,0,0.35);
 }
 </style>
 </head>
-
 <body>
 
 <div id="ui">
-  <div>StickWorld</div>
-
-  <div>
-    <div id="name"></div>
-    Coins: <span id="coins">0</span><br>
-    <span id="timer">Loading...</span>
+  <div class="logo">🌍 StickWorld</div>
+  <div class="info">
+    <div id="nameDisplay"></div>
+    💰 <span id="coins">0</span> &nbsp; ⏱ <span id="timer">--:--</span>
   </div>
-
   <button onclick="logout()">Logout</button>
 </div>
 
 <div id="chat">
   <div id="msgs"></div>
-  <input id="msg" placeholder="chat...">
+  <input id="msg" placeholder="Press Enter to chat...">
 </div>
 
 <div id="controls">
-  <div></div>
-  <div class="btn" onclick="jump()">⬆</div>
-  <div></div>
-
-  <div class="btn" onclick="left()">⬅</div>
-  <div class="btn" onclick="down()">⬇</div>
-  <div class="btn" onclick="right()">➡</div>
+  <div class="ctrl-row">
+    <div class="btn" id="btnJump">⬆️</div>
+  </div>
+  <div class="ctrl-row">
+    <div class="btn" id="btnLeft">⬅️</div>
+    <div class="btn" id="btnRight">➡️</div>
+  </div>
 </div>
+
+<div id="keys-hint">WASD / Arrow Keys to move &nbsp; Space to jump</div>
 
 <canvas id="c"></canvas>
 
 <script src="/socket.io/socket.io.js"></script>
-
 <script>
 const socket = io();
+const username = localStorage.getItem('username');
+if (!username) location.href = '/login.html';
+document.getElementById('nameDisplay').innerText = '👤 ' + username;
 
-/* USER */
-const username = localStorage.getItem("username");
-if(!username) location.href="/login.html";
+// ─── INPUT STATE ───────────────────────────────────────
+const keys = { left:false, right:false, jump:false };
+let lastInput = {};
 
-document.getElementById("name").innerText = username;
-
-/* MOBILE */
-if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
-  document.getElementById("controls").style.display = "grid";
+function sendInput() {
+  const inp = { left: keys.left, right: keys.right, jump: keys.jump };
+  if (JSON.stringify(inp) !== JSON.stringify(lastInput)) {
+    socket.emit('input', inp);
+    lastInput = { ...inp };
+  }
 }
 
-/* STATE */
+document.addEventListener('keydown', e => {
+  if (e.key==='a'||e.key==='ArrowLeft')  { keys.left=true; keys.right=false; }
+  if (e.key==='d'||e.key==='ArrowRight') { keys.right=true; keys.left=false; }
+  if (e.key===' '||e.key==='w'||e.key==='ArrowUp') keys.jump=true;
+});
+document.addEventListener('keyup', e => {
+  if (e.key==='a'||e.key==='ArrowLeft')  keys.left=false;
+  if (e.key==='d'||e.key==='ArrowRight') keys.right=false;
+  if (e.key===' '||e.key==='w'||e.key==='ArrowUp') keys.jump=false;
+});
+
+setInterval(sendInput, 1000/60);
+
+// Mobile buttons
+const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+if (isMobile) document.getElementById('controls').style.display='flex';
+
+function holdBtn(id, keyName) {
+  const el = document.getElementById(id);
+  el.addEventListener('touchstart', e => { e.preventDefault(); keys[keyName]=true; });
+  el.addEventListener('touchend',   e => { e.preventDefault(); keys[keyName]=false; });
+}
+holdBtn('btnLeft','left');
+holdBtn('btnRight','right');
+holdBtn('btnJump','jump');
+
+// ─── GAME STATE ────────────────────────────────────────
 let players = {};
-let x = 300;
-let y = 500;
+let camX = 0;
 
-/* JOIN */
-socket.emit("join",{username});
+socket.emit('join', { username });
 
-/* RECEIVE PLAYERS */
-socket.on("players", p=>{
+socket.on('players', p => {
   players = p;
-
-  for(let id in p){
-    if(p[id].username === username){
-
-      document.getElementById("coins").innerText = p[id].coins ?? 0;
-
-      let t = p[id].timeLeft ?? 600000;
-
-      let m = Math.floor(t/60000);
-      let s = Math.floor((t%60000)/1000);
-
-      document.getElementById("timer").innerText =
-      "Next 50 coins in " +
-      String(m).padStart(2,'0') + ":" +
-      String(s).padStart(2,'0');
+  for (let id in p) {
+    if (p[id].username === username) {
+      document.getElementById('coins').innerText = p[id].coins ?? 0;
+      const t = p[id].timeLeft ?? 600000;
+      const m = Math.floor(t/60000);
+      const s = Math.floor((t%60000)/1000);
+      document.getElementById('timer').innerText =
+        String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
     }
   }
 });
 
-/* CHAT */
-socket.on("chat", data=>{
-  addChat(data.username, data.text);
+socket.on('chat', data => {
+  const d = document.createElement('div');
+  d.innerHTML = `<span>${data.username}:</span> ${data.text}`;
+  const msgs = document.getElementById('msgs');
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
 });
 
-/* CHAT UI */
-function addChat(u,t){
-  const d=document.createElement("div");
-  d.innerText=u+": "+t;
-  document.getElementById("msgs").appendChild(d);
-}
-
-/* INPUT */
-document.getElementById("msg").addEventListener("keydown",e=>{
-  if(e.key==="Enter"){
-    socket.emit("chat",{text:e.target.value});
-    e.target.value="";
+document.getElementById('msg').addEventListener('keydown', e => {
+  if (e.key==='Enter' && e.target.value.trim()) {
+    socket.emit('chat', { text: e.target.value.trim() });
+    e.target.value = '';
   }
 });
 
-/* MOVEMENT (ONLY X - SERVER HANDLES Y PHYSICS) */
-document.addEventListener("keydown",e=>{
-  if(e.key==="a"||e.key==="ArrowLeft") x-=6;
-  if(e.key==="d"||e.key==="ArrowRight") x+=6;
+function logout() { localStorage.clear(); location.href='/login.html'; }
 
-  socket.emit("move",{x});
-});
+// ─── CANVAS & RENDER ───────────────────────────────────
+const c = document.getElementById('c');
+const ctx = c.getContext('2d');
 
-/* MOBILE */
-function left(){ x-=10; socket.emit("move",{x}); }
-function right(){ x+=10; socket.emit("move",{x}); }
-function down(){ x+=10; socket.emit("move",{x}); }
+function resize() { c.width=innerWidth; c.height=innerHeight; }
+resize();
+window.addEventListener('resize', resize);
 
-/* JUMP (SERVER CONTROLLED) */
-function jump(){
-  socket.emit("jump");
+// World constants (must match server)
+const GROUND_Y = 500;
+const WORLD_W = 2020;
+
+// Colors per player index
+const COLORS = ['#2980b9','#e74c3c','#27ae60','#8e44ad','#e67e22','#16a085','#c0392b','#2c3e50'];
+const playerColors = {};
+let colorIdx = 0;
+function getColor(id) {
+  if (!playerColors[id]) playerColors[id] = COLORS[colorIdx++ % COLORS.length];
+  return playerColors[id];
 }
 
-/* LOGOUT CLEAN */
-function logout(){
-  localStorage.clear();
-  location.href="/login.html";
+// ── Draw background sky + parallax clouds
+let cloudOffset = 0;
+function drawSky() {
+  // Sky gradient
+  const grad = ctx.createLinearGradient(0,0,0,c.height);
+  grad.addColorStop(0,'#87ceeb');
+  grad.addColorStop(1,'#dff6ff');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0,0,c.width,c.height);
+
+  // Clouds (parallax at 0.3 speed)
+  ctx.fillStyle = 'rgba(255,255,255,0.75)';
+  const cx = -camX*0.3;
+  const cloudPos = [200,500,900,1300,1700];
+  cloudPos.forEach(bx => {
+    const rx = ((bx+cx) % (WORLD_W+400)) - 100;
+    drawCloud(rx, 80);
+    drawCloud(rx+30, 130);
+  });
 }
 
-/* CANVAS */
-const c=document.getElementById("c");
-const ctx=c.getContext("2d");
+function drawCloud(x,y) {
+  ctx.beginPath();
+  ctx.arc(x,y,28,0,Math.PI*2);
+  ctx.arc(x+30,y-10,22,0,Math.PI*2);
+  ctx.arc(x+60,y,25,0,Math.PI*2);
+  ctx.fill();
+}
 
-c.width=innerWidth;
-c.height=innerHeight;
+// ── Draw world (ground, trees, platforms)
+function drawWorld() {
+  const ox = -camX;
 
-/* WORLD */
-function world(){
-  ctx.fillStyle="#7ad67a";
-  ctx.fillRect(0,500,innerWidth,300);
+  // Ground
+  const groundGrad = ctx.createLinearGradient(0, GROUND_Y, 0, GROUND_Y+120);
+  groundGrad.addColorStop(0,'#5dbb5d');
+  groundGrad.addColorStop(0.12,'#4cae4c');
+  groundGrad.addColorStop(1,'#3d8b3d');
+  ctx.fillStyle = groundGrad;
+  ctx.fillRect(ox, GROUND_Y, WORLD_W, 300);
 
-  for(let i=0;i<6;i++){
-    let tx = 150 + i*180;
+  // Ground top edge highlight
+  ctx.strokeStyle='#6fd46f'; ctx.lineWidth=3;
+  ctx.beginPath();
+  ctx.moveTo(ox, GROUND_Y);
+  ctx.lineTo(ox+WORLD_W, GROUND_Y);
+  ctx.stroke();
 
-    ctx.fillStyle="#4b2e1f";
-    ctx.fillRect(tx,450,20,60);
+  // Trees
+  const treeX = [100,280,500,750,1000,1250,1500,1750,1950];
+  treeX.forEach(tx => {
+    const x = tx + ox;
+    // Trunk
+    ctx.fillStyle='#6b3a1f';
+    ctx.fillRect(x-8, GROUND_Y-55, 16, 60);
+    // Foliage (3 layers)
+    ctx.fillStyle='#2ecc71';
+    ctx.beginPath(); ctx.arc(x, GROUND_Y-80, 34,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#27ae60';
+    ctx.beginPath(); ctx.arc(x-10,GROUND_Y-100,22,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x+12,GROUND_Y-95,20,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#1e8449';
+    ctx.beginPath(); ctx.arc(x, GROUND_Y-110, 16,0,Math.PI*2); ctx.fill();
+  });
 
-    ctx.fillStyle="#2ecc71";
-    ctx.beginPath();
-    ctx.arc(tx+10,430,30,0,Math.PI*2);
-    ctx.fill();
+  // Platforms
+  const platforms = [
+    {x:350,y:380,w:120},{x:700,y:330,w:140},
+    {x:1050,y:370,w:110},{x:1350,y:310,w:150},
+    {x:1650,y:360,w:130},{x:1850,y:290,w:100}
+  ];
+  platforms.forEach(pl => {
+    const px = pl.x + ox;
+    ctx.fillStyle='#8b5e3c';
+    ctx.fillRect(px, pl.y+12, pl.w, 16);
+    ctx.fillStyle='#5dbb5d';
+    ctx.fillRect(px, pl.y, pl.w, 14);
+    ctx.strokeStyle='#4cae4c'; ctx.lineWidth=1.5;
+    ctx.strokeRect(px, pl.y, pl.w, 14);
+  });
+}
+
+// ── Draw stickman with proper walk cycle
+function drawStickman(p) {
+  const ox = -camX;
+  const px = p.x + ox;
+  const py = p.y;
+  const t = p.anim || 0;
+  const onGround = p.onGround;
+  const moving = Math.abs(p.vx||0) > 0.5;
+  const facing = p.facing || 1;
+  const color = getColor(p.id);
+
+  ctx.save();
+
+  // Name tag
+  ctx.font = '11px Segoe UI';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(0,0,0,0.55)';
+  const nameW = ctx.measureText(p.username).width + 10;
+  ctx.fillRoundRect(px - nameW/2, py-78, nameW, 18, 4);
+  ctx.fillStyle='#fff';
+  ctx.fillText(p.username, px, py-64);
+
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = 'round';
+
+  // Head
+  ctx.beginPath();
+  ctx.arc(px, py-50, 11, 0, Math.PI*2);
+  ctx.stroke();
+  // Eyes
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.arc(px + facing*4, py-52, 2, 0, Math.PI*2);
+  ctx.fill();
+
+  // Body
+  ctx.beginPath();
+  ctx.moveTo(px, py-39);
+  ctx.lineTo(px, py-15);
+  ctx.stroke();
+
+  // Arms & legs animation
+  let legSwing = 0, armSwing = 0, legBend = 0;
+  if (moving && onGround) {
+    legSwing  = Math.sin(t * Math.PI * 2) * 18;
+    armSwing  = Math.sin(t * Math.PI * 2) * 14;
+    legBend   = Math.abs(Math.sin(t * Math.PI * 2)) * 8;
+  } else if (!onGround) {
+    // Jump pose
+    legSwing = -20;
+    armSwing = 25;
+  } else {
+    // Idle: slight breathing
+    legSwing = 0;
+    armSwing = Math.sin(t) * 3;
   }
+
+  // Arms
+  ctx.beginPath();
+  ctx.moveTo(px, py-32);
+  ctx.lineTo(px - 14 - armSwing * facing, py-20);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(px, py-32);
+  ctx.lineTo(px + 14 + armSwing * facing, py-20);
+  ctx.stroke();
+
+  // Legs (walk cycle: alternate swing)
+  // Left leg
+  ctx.beginPath();
+  ctx.moveTo(px, py-15);
+  ctx.lineTo(px - 8 - legSwing*0.4, py + 2 - legBend);
+  ctx.lineTo(px - 10 - legSwing*0.7, py+18);
+  ctx.stroke();
+  // Right leg
+  ctx.beginPath();
+  ctx.moveTo(px, py-15);
+  ctx.lineTo(px + 8 + legSwing*0.4, py + 2 - legBend);
+  ctx.lineTo(px + 10 + legSwing*0.7, py+18);
+  ctx.stroke();
+
+  ctx.restore();
 }
 
-/* STICKMAN */
-function draw(p){
-  let walk = Math.sin(p.anim||0)*5;
+// ── Main loop
+function loop() {
+  // Camera: follow local player
+  for (let id in players) {
+    if (players[id].username === username) {
+      const target = players[id].x - c.width/2;
+      camX += (target - camX) * 0.1; // smooth camera
+      camX = Math.max(0, Math.min(WORLD_W - c.width, camX));
+    }
+  }
 
-  ctx.strokeStyle="#000";
-  ctx.lineWidth=2;
+  drawSky();
+  drawWorld();
 
-  ctx.beginPath();
-  ctx.arc(p.x,p.y-40,10,0,Math.PI*2);
-  ctx.stroke();
-
-  ctx.beginPath();
-  ctx.moveTo(p.x,p.y-30);
-  ctx.lineTo(p.x,p.y);
-  ctx.stroke();
-
-  ctx.beginPath();
-  ctx.moveTo(p.x,p.y-20);
-  ctx.lineTo(p.x-10,p.y-10+walk);
-  ctx.moveTo(p.x,p.y-20);
-  ctx.lineTo(p.x+10,p.y-10-walk);
-  ctx.stroke();
-
-  ctx.beginPath();
-  ctx.moveTo(p.x,p.y);
-  ctx.lineTo(p.x-10+walk,p.y+20);
-  ctx.moveTo(p.x,p.y);
-  ctx.lineTo(p.x+10-walk,p.y+20);
-  ctx.stroke();
-}
-
-/* LOOP */
-function loop(){
-  ctx.clearRect(0,0,c.width,c.height);
-
-  world();
-
-  for(let id in players){
-    draw(players[id]);
+  for (let id in players) {
+    drawStickman(players[id]);
   }
 
   requestAnimationFrame(loop);
 }
-
 loop();
-
 </script>
-
 </body>
 </html>
