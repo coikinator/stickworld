@@ -292,7 +292,7 @@ function drawStickman(p) {
   const onGround = p.onGround;
   const moving = Math.abs(p.vx||0) > 0.5;
   const facing = p.facing || 1;
-  const color = getColor(p.id);
+  const color = getColor(p.id || p.username);
 
   ctx.save();
 
@@ -301,7 +301,7 @@ function drawStickman(p) {
   ctx.textAlign = 'center';
   ctx.fillStyle = 'rgba(0,0,0,0.55)';
   const nameW = ctx.measureText(p.username).width + 10;
-  ctx.fillRoundRect(px - nameW/2, py-78, nameW, 18, 4);
+  ctx.fillRect(px - nameW/2, py-78, nameW, 18);
   ctx.fillStyle='#fff';
   ctx.fillText(p.username, px, py-64);
 
