@@ -9,9 +9,6 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 body{overflow:hidden;font-family:'Rajdhani',sans-serif;background:#87ceeb;touch-action:none;user-select:none;}
-<audio id="bgMusic" autoplay loop>
-  <source src="https://stickworld.onrender.com/StickWorldLobby.mp3" type="audio/mpeg">
-</audio>
 canvas{display:block;}
 
 #ui{
@@ -100,6 +97,10 @@ canvas{display:block;}
 </head>
 <body>
 
+<audio id="bgMusic" autoplay loop>
+  <source src="https://stickworld.onrender.com/StickWorldLobby.mp3" type="audio/mpeg">
+</audio>
+  
 <div id="ui">
   <div class="ui-logo">🌍 StickWorld</div>
   <div class="ui-info">
@@ -410,7 +411,10 @@ function drawStickman(p) {
 
 document.addEventListener("click", () => {
   const music = document.getElementById("bgMusic");
-  music.play();
+  if (music) {
+    music.volume = 0.5;
+    music.play().catch(() => {});
+  }
 }, { once: true });
   
 // ── Main loop
