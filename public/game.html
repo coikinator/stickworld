@@ -266,7 +266,7 @@ socket.on('chat', data => {
   nameSpan.textContent = data.username + ':';
   d.appendChild(nameSpan);
 
-  if (data.emoji && data.emoji !== '[emoji]') {
+  if (data.emoji) {
     const img = document.createElement('img');
     img.src = EMOJI_BASE + data.emoji + '.png';
     img.className = 'msg-emoji';
@@ -275,7 +275,7 @@ socket.on('chat', data => {
 
     getEmojiImg(data.emoji);
   } 
-  else if (data.text && data.text !== '[emoji]') {
+  else if (data.text) {
     const txt = document.createTextNode(' ' + data.text);
     d.appendChild(txt);
   }
