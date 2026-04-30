@@ -9,6 +9,50 @@ const path      = require('path');
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1499530365843276026/DcT78M9BRoCxWt2eKSO7Wsyo05sB9cQX_r7nri97NsgxedGyRRbxGr5UFQhZFU35Be-3";
 
+async function sendToDiscord(username, text, emoji) {
+  try {
+    const time = new Date().toLocaleTimeString("de-DE");
+
+    let content = text;
+    let embeds = [];
+
+    if (emoji) {
+      const url = `https://stickworld.neocities.org/emojis/${emoji}.png`;
+
+      embeds.push({
+        title: "Emoji gesendet",
+        description: `**${username}** hat ein Emoji geschickt`,
+        image: { url },
+        color: 0x5ba3f5,
+        footer: { text: time }
+      });
+
+      content = "";
+    } else {
+      embeds.push({
+        title: "Neue Nachricht",
+        description: `**${username}**: ${text}`,
+        color: 0x2ecc71,
+        footer: { text: time }
+      });
+    }
+
+    await fetch(DISCORD_WEBHOOK, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: "StickWorld Chat",
+        avatar_url: "https://stickworld.neocities.org/favicon.png",
+        content: content,
+        embeds: embeds
+      })
+    });
+
+  } catch (err) {
+    console.error("Discord Webhook Fehler:", err);
+  }
+}
+
 const app    = express();
 const server = http.createServer(app);
 const io     = socketio(server);
