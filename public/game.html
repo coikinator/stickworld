@@ -412,7 +412,7 @@ function drawStickman(p) {
 document.addEventListener("click", () => {
   const music = document.getElementById("bgMusic");
   if (music) {
-    music.volume = 0.5;
+   // music.volume = 0.5;
     music.play().catch(() => {});
   }
 }, { once: true });
