@@ -200,10 +200,6 @@ socket.on('chat', (data) => {
   const p = players[socket.id];
   if (!p) return;
 
-socket.on('chat', (data) => {
-  const p = players[socket.id];
-  if (!p) return;
-
   const msg = {
     id: socket.id,
     username: p.username,
