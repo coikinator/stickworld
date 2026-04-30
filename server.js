@@ -54,6 +54,22 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+app.get('/api/updates', async (req, res) => {
+  const logs = [];
+  let i = 1;
+  while (true) {
+    try {
+      const r = await fetch(`https://stickworld.neocities.org/updates/${i}.json`);
+      if (!r.ok) break;
+      const data = await r.json();
+      data._num = i;
+      logs.push(data);
+      i++;
+    } catch(e) { break; }
+  }
+  res.json(logs);
+});
+
 // ── SESSION CHECK
 // Map: username -> socketId (who is currently in game)
 const activeSessions = {};
