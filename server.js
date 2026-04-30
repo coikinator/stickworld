@@ -70,6 +70,16 @@ app.get('/api/updates', async (req, res) => {
   res.json(logs);
 });
 
+app.get('/api/emojis', async (req, res) => {
+  try {
+    const r = await fetch('https://stickworld.neocities.org/emojis/emojis.json');
+    const list = await r.json();
+    res.json(list);
+  } catch(e) {
+    res.json([]);
+  }
+});
+
 // ── SESSION CHECK
 // Map: username -> socketId (who is currently in game)
 const activeSessions = {};
