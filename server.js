@@ -6,6 +6,9 @@ const bcrypt    = require('bcryptjs');
 const jwt       = require('jsonwebtoken');
 const path      = require('path');
 
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1499530365843276026/DcT78M9BRoCxWt2eKSO7Wsyo05sB9cQX_r7nri97NsgxedGyRRbxGr5UFQhZFU35Be-3";
+
 const app    = express();
 const server = http.createServer(app);
 const io     = socketio(server);
