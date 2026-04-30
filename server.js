@@ -6,8 +6,6 @@ const bcrypt    = require('bcryptjs');
 const jwt       = require('jsonwebtoken');
 const path      = require('path');
 
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
-const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1499530365843276026/DcT78M9BRoCxWt2eKSO7Wsyo05sB9cQX_r7nri97NsgxedGyRRbxGr5UFQhZFU35Be-3";
 
 async function sendToDiscord(username, text, emoji) {
   try {
@@ -131,14 +129,15 @@ app.get('/api/emojis', async (req, res) => {
 // Map: username -> socketId (who is currently in game)
 const activeSessions = {};
 
-app.get('/api/check-session', (req, res) => {
+app.get('/api/emojis', async (req, res) => {
   try {
-    const token = (req.headers.authorization || '').replace('Bearer ', '');
-    const { username } = jwt.verify(token, JWT_SECRET);
-    const alreadyInGame = !!(activeSessions[username]);
-    res.json({ alreadyInGame });
+    const r = await fetch('https://stickworld.neocities.org/emojis/emojis.json');
+    const list = await r.json();
+    console.log("EMOJIS LOADED:", list);
+    res.json(list);
   } catch(e) {
-    res.status(401).json({ error: 'Unauthorized' });
+    console.error("EMOJI FETCH FAILED:", e);
+    res.status(500).json({ error: "emoji fetch failed" });
   }
 });
 
