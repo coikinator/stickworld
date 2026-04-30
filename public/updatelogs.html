@@ -18,9 +18,7 @@ html,body{min-height:100%;overflow-x:hidden;}
 body{
   font-family:'Rajdhani',sans-serif;
   background:linear-gradient(160deg,var(--sky1) 0%,var(--sky2) 100%);
-  color:var(--text);
-  min-height:100vh;
-  padding-bottom:60px;
+  color:var(--text);min-height:100vh;padding-bottom:60px;
 }
 body::before{
   content:'';position:fixed;inset:0;
@@ -35,8 +33,6 @@ body::before{
     radial-gradient(1px 1px at 42% 70%,rgba(255,255,255,.3) 0%,transparent 100%);
   pointer-events:none;z-index:0;
 }
-
-/* NAV */
 .nav{
   position:sticky;top:0;z-index:50;
   display:flex;align-items:center;justify-content:space-between;
@@ -45,138 +41,32 @@ body::before{
   backdrop-filter:blur(16px);
   border-bottom:1px solid var(--border);
 }
-.nav-logo{
-  font-family:'Orbitron',monospace;font-size:16px;font-weight:800;
-  color:#fff;letter-spacing:4px;text-decoration:none;
-  text-shadow:0 0 20px rgba(91,163,245,.5);
-}
+.nav-logo{font-family:'Orbitron',monospace;font-size:16px;font-weight:800;color:#fff;letter-spacing:4px;text-decoration:none;text-shadow:0 0 20px rgba(91,163,245,.5);}
 .nav-logo span{color:var(--accent2);}
-.nav-back{
-  background:rgba(91,163,245,.1);
-  border:1px solid rgba(91,163,245,.2);
-  border-radius:9px;color:var(--accent);
-  font-family:'Rajdhani',sans-serif;font-size:13px;
-  letter-spacing:1px;padding:6px 14px;cursor:pointer;
-  text-decoration:none;transition:all .2s;
-}
+.nav-back{background:rgba(91,163,245,.1);border:1px solid rgba(91,163,245,.2);border-radius:9px;color:var(--accent);font-family:'Rajdhani',sans-serif;font-size:13px;letter-spacing:1px;padding:6px 14px;cursor:pointer;text-decoration:none;transition:all .2s;}
 .nav-back:hover{background:rgba(91,163,245,.2);}
-
-/* HEADER */
-.page-header{
-  text-align:center;padding:40px 20px 20px;
-  position:relative;z-index:1;
-}
-.page-title{
-  font-family:'Orbitron',monospace;
-  font-size:clamp(22px,5vw,36px);
-  font-weight:800;letter-spacing:4px;color:#fff;
-  text-shadow:0 0 30px rgba(91,163,245,.5);
-}
-.page-sub{
-  font-size:13px;color:var(--muted);
-  letter-spacing:2px;margin-top:8px;text-transform:uppercase;
-}
-
-/* LOADING */
-#loadingWrap{
-  text-align:center;padding:60px 20px;
-  position:relative;z-index:1;
-}
-.spinner{
-  width:36px;height:36px;margin:0 auto 16px;
-  border:3px solid rgba(91,163,245,.15);
-  border-top-color:var(--accent);
-  border-radius:50%;
-  animation:spin .8s linear infinite;
-}
+.page-header{text-align:center;padding:40px 20px 20px;position:relative;z-index:1;}
+.page-title{font-family:'Orbitron',monospace;font-size:clamp(22px,5vw,36px);font-weight:800;letter-spacing:4px;color:#fff;text-shadow:0 0 30px rgba(91,163,245,.5);}
+.page-sub{font-size:13px;color:var(--muted);letter-spacing:2px;margin-top:8px;text-transform:uppercase;}
+#loadingWrap{text-align:center;padding:60px 20px;position:relative;z-index:1;}
+.spinner{width:36px;height:36px;margin:0 auto 16px;border:3px solid rgba(91,163,245,.15);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
-
-/* TIMELINE */
-.timeline{
-  position:relative;z-index:1;
-  max-width:680px;margin:0 auto;
-  padding:10px 20px 40px;
-}
-/* vertical line */
-.timeline::before{
-  content:'';position:absolute;
-  left:calc(20px + 18px);top:0;bottom:0;width:2px;
-  background:linear-gradient(180deg,rgba(91,163,245,.4),rgba(91,163,245,.05));
-}
-
-.log-entry{
-  display:flex;gap:18px;
-  margin-bottom:28px;
-  animation:fadeUp .4s ease both;
-}
-@keyframes fadeUp{
-  from{opacity:0;transform:translateY(16px);}
-  to{opacity:1;transform:translateY(0);}
-}
-
-/* dot on timeline */
-.log-dot{
-  flex-shrink:0;
-  width:38px;height:38px;
-  border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-size:16px;
-  border:2px solid;
-  position:relative;z-index:2;
-  margin-top:4px;
-}
-
-.log-card{
-  flex:1;
-  background:linear-gradient(135deg,rgba(30,50,90,.85),rgba(15,28,60,.9));
-  border:1px solid var(--border);
-  border-radius:14px;
-  padding:18px 20px;
-  box-shadow:0 4px 24px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.05);
-  backdrop-filter:blur(12px);
-  transition:transform .2s,box-shadow .2s;
-}
-.log-card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.4);}
-
-.log-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;}
-.log-name{
-  font-family:'Orbitron',monospace;
-  font-size:clamp(13px,3vw,16px);
-  font-weight:600;letter-spacing:2px;color:#fff;
-}
-.log-date{
-  font-size:11px;color:var(--muted);
-  letter-spacing:1px;white-space:nowrap;
-  background:rgba(255,255,255,.04);
-  padding:3px 8px;border-radius:6px;
-  border:1px solid rgba(255,255,255,.06);
-}
-.log-desc{
-  margin-top:10px;font-size:14px;
-  color:#8898c8;line-height:1.6;
-}
-.log-num{
-  font-size:11px;color:var(--muted);
-  margin-top:10px;letter-spacing:1px;
-  font-family:'Orbitron',monospace;
-}
-
-/* ERROR */
-#errorWrap{
-  text-align:center;padding:40px 20px;
-  position:relative;z-index:1;display:none;
-}
+#errorWrap{text-align:center;padding:40px 20px;position:relative;z-index:1;display:none;}
 .error-icon{font-size:40px;margin-bottom:12px;}
-.error-text{color:var(--muted);font-size:14px;}
-
-/* FOOTER */
-.footer{
-  text-align:center;font-size:11px;color:var(--muted);
-  letter-spacing:1px;margin-top:10px;
-  position:relative;z-index:1;
-}
-
-/* COLOR THEMES for dots + card accent */
+.error-text{color:var(--muted);font-size:14px;line-height:1.8;}
+.timeline{position:relative;z-index:1;max-width:680px;margin:0 auto;padding:10px 20px 40px;}
+.timeline::before{content:'';position:absolute;left:calc(20px + 18px);top:0;bottom:0;width:2px;background:linear-gradient(180deg,rgba(91,163,245,.4),rgba(91,163,245,.05));}
+.log-entry{display:flex;gap:18px;margin-bottom:28px;animation:fadeUp .4s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+.log-dot{flex-shrink:0;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;border:2px solid;position:relative;z-index:2;margin-top:4px;}
+.log-card{flex:1;background:linear-gradient(135deg,rgba(30,50,90,.85),rgba(15,28,60,.9));border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:0 4px 24px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.05);backdrop-filter:blur(12px);transition:transform .2s,box-shadow .2s;}
+.log-card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.4);}
+.log-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;}
+.log-name{font-family:'Orbitron',monospace;font-size:clamp(13px,3vw,16px);font-weight:600;letter-spacing:2px;color:#fff;}
+.log-date{font-size:11px;color:var(--muted);letter-spacing:1px;white-space:nowrap;background:rgba(255,255,255,.04);padding:3px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.06);}
+.log-desc{margin-top:10px;font-size:14px;color:#8898c8;line-height:1.6;}
+.log-num{font-size:11px;color:var(--muted);margin-top:10px;letter-spacing:1px;font-family:'Orbitron',monospace;}
+.footer{text-align:center;font-size:11px;color:var(--muted);letter-spacing:1px;margin-top:10px;position:relative;z-index:1;}
 .color-green  .log-dot{background:rgba(46,204,113,.15);border-color:#2ecc71;color:#2ecc71;}
 .color-green  .log-card{border-left:3px solid #2ecc71;}
 .color-blue   .log-dot{background:rgba(91,163,245,.15);border-color:#5ba3f5;color:#5ba3f5;}
@@ -214,7 +104,7 @@ body::before{
 
 <div id="errorWrap">
   <div class="error-icon">📭</div>
-  <div class="error-text">No update logs found.</div>
+  <div class="error-text" id="errorText">No update logs found.</div>
 </div>
 
 <div class="timeline" id="timeline"></div>
@@ -222,68 +112,67 @@ body::before{
 <div class="footer">© coikinator / Sandro Evrard — All rights reserved</div>
 
 <script>
-const BASE_URL = 'https://stickworld.neocities.org/updates/';
+// ── Each file: https://stickworld.neocities.org/updates/1.json
+// Format of each JSON file:
+// {
+//   "UpdateName": "V.1",
+//   "Description": "Added update logs page.",
+//   "Date": "30.04.2026",
+//   "Color": "Green"
+// }
 
-// Color → emoji icon
+const BASE = 'https://stickworld.neocities.org/updates/';
+
 const COLOR_ICONS = {
   green:'✅', blue:'🔵', red:'🔴', yellow:'⭐',
-  purple:'💜', orange:'🟠', pink:'🩷', cyan:'🟢',
+  purple:'💜', orange:'🟠', pink:'🩷', cyan:'🟢', white:'⚪'
 };
 
-function parseLog(text) {
-  const result = {};
-  text.split('\n').forEach(line => {
-    const idx = line.indexOf(':');
-    if (idx === -1) return;
-    const key = line.slice(0, idx).trim().toLowerCase();
-    const val = line.slice(idx + 1).trim();
-    result[key] = val;
-  });
-  return result;
-}
-
-function colorClass(c) {
-  if (!c) return 'color-blue';
-  return 'color-' + c.toLowerCase().trim();
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 async function loadLogs() {
   const timeline = document.getElementById('timeline');
   const loading  = document.getElementById('loadingWrap');
   const errorDiv = document.getElementById('errorWrap');
+  const errorTxt = document.getElementById('errorText');
 
   const logs = [];
   let i = 1;
 
-  // Fetch until we get a 404
   while (true) {
     try {
-      const res = await fetch(BASE_URL + i + '.json');
-      if (!res.ok) break;
-      const text = await res.text();
-      const parsed = parseLog(text);
-      parsed._num = i;
-      logs.push(parsed);
+      const res = await fetch(BASE + i + '.json', { cache: 'no-cache' });
+      if (!res.ok) break; // 404 = no more logs
+      const data = await res.json();
+      // Normalize keys (case-insensitive)
+      const norm = {};
+      Object.keys(data).forEach(k => norm[k.toLowerCase()] = data[k]);
+      norm._num = i;
+      logs.push(norm);
       i++;
-    } catch(e) { break; }
+    } catch(e) {
+      break;
+    }
   }
 
   loading.style.display = 'none';
 
   if (logs.length === 0) {
+    errorTxt.innerText = 'No updates found. Make sure your JSON files are at:\nhttps://stickworld.neocities.org/updates/1.json';
     errorDiv.style.display = 'block';
     return;
   }
 
-  // Show newest first
-  const sorted = [...logs].reverse();
-
-  sorted.forEach((log, idx) => {
-    const cc   = colorClass(log.color);
-    const icon = COLOR_ICONS[log.color?.toLowerCase().trim()] || '📋';
-    const name = log.updatename || log.name || ('Update #' + log._num);
-    const desc = log.description || log.desc || '';
-    const date = log.date || '';
+  // Newest first
+  [...logs].reverse().forEach((log, idx) => {
+    const colorKey = (log.color || 'blue').toLowerCase().trim();
+    const cc       = 'color-' + colorKey;
+    const icon     = COLOR_ICONS[colorKey] || '📋';
+    const name     = log.updatename || log.name || ('Update #' + log._num);
+    const desc     = log.description || log.desc || '';
+    const date     = log.date || '';
 
     const entry = document.createElement('div');
     entry.className = 'log-entry ' + cc;
@@ -292,10 +181,10 @@ async function loadLogs() {
       '<div class="log-dot">' + icon + '</div>' +
       '<div class="log-card">' +
         '<div class="log-top">' +
-          '<div class="log-name">' + name + '</div>' +
-          (date ? '<div class="log-date">📅 ' + date + '</div>' : '') +
+          '<div class="log-name">' + esc(name) + '</div>' +
+          (date ? '<div class="log-date">📅 ' + esc(date) + '</div>' : '') +
         '</div>' +
-        (desc ? '<div class="log-desc">' + desc + '</div>' : '') +
+        (desc ? '<div class="log-desc">' + esc(desc) + '</div>' : '') +
         '<div class="log-num">UPDATE #' + log._num + '</div>' +
       '</div>';
     timeline.appendChild(entry);
