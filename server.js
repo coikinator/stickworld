@@ -219,7 +219,11 @@ socket.on('chat', (data) => {
   io.emit('chat', msg);
 
   setTimeout(() => {
-    sendToDiscord(msg.username, msg.text, msg.emoji);
+    sendToDiscord(
+  msg.username,
+  msg.text || "",
+  msg.emoji || null
+);
   }, 0);
 });
 
