@@ -120,18 +120,9 @@ app.get('/api/updates', async (req, res) => {
 app.get('/api/emojis', async (req, res) => {
   try {
     const r = await fetch('https://stickworld.neocities.org/emojis/emojis.json');
-
-    if (!r.ok) {
-      console.log("Emoji JSON nicht gefunden!");
-      return res.json([]);
-    }
-
     const list = await r.json();
-    console.log("Emoji geladen:", list);
-
     res.json(list);
   } catch(e) {
-    console.log("Emoji Fehler:", e);
     res.json([]);
   }
 });
