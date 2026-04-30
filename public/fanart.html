@@ -32,9 +32,79 @@ body::before{
 
 /* Header */
 .header{
-  position:relative;z-index:2;
-  padding:32px 24px 0;
+  position:relative;
+  z-index:2;
+  padding:32px 24px 20px;
+  min-height:120px;
+}
+  .header-content{
   text-align:center;
+}
+
+
+
+/* 🔥 DAS FIXT DEIN GANZES PROBLEM */
+.submit-wrapper{
+  position:relative;
+  z-index:2;
+  width:100%;
+  display:flex;
+  justify-content:center;
+}
+
+.submit-box{
+  margin-top:24px;
+  padding:20px;
+  width:100%;
+  max-width:520px;
+  text-align:center;
+
+  background:linear-gradient(135deg,rgba(30,50,90,.7),rgba(15,28,60,.9));
+  border:1px solid rgba(91,163,245,.25);
+  border-radius:16px;
+
+  box-shadow:
+    0 10px 40px rgba(0,0,0,.4),
+    0 0 20px rgba(91,163,245,.08);
+}
+
+.submit-title{
+  font-family:'Orbitron',monospace;
+  font-size:14px;
+  letter-spacing:3px;
+  color:var(--accent);
+  margin-bottom:10px;
+}
+
+.submit-text{
+  font-size:13px;
+  color:var(--muted);
+  margin-bottom:12px;
+}
+
+.submit-mail{
+  display:inline-block;
+  padding:8px 16px;
+  border-radius:10px;
+
+  background:rgba(91,163,245,.12);
+  border:1px solid rgba(91,163,245,.3);
+
+  color:var(--accent);
+  text-decoration:none;
+
+  font-size:13px;
+  font-weight:600;
+
+  transition:all .2s;
+}
+
+.submit-mail:hover{
+  background:rgba(91,163,245,.25);
+  color:#fff;
+  box-shadow:0 0 12px rgba(91,163,245,.5);
+
+  
 }
 .back-btn{
   position:absolute;left:20px;top:30px;
@@ -48,6 +118,9 @@ body::before{
   text-decoration:none;display:inline-flex;align-items:center;gap:6px;
   transition:all .2s;
 }
+
+.back-btn:hover{background:rgba(91,163,245,.2);}
+
 .back-btn:hover{background:rgba(91,163,245,.2);}
 .logo-icon{
   width:44px;height:44px;margin:0 auto 10px;
@@ -207,10 +280,26 @@ body::before{
 
 <div class="header">
   <a class="back-btn" href="/">← HOME</a>
-  <div class="logo-icon"></div>
-  <div class="logo">STICK<span>WORLD</span></div>
-  <div class="page-title">⭐ Community Fan Art</div>
+
+  <div class="header-content">
+    <div class="logo-icon"></div>
+    <div class="logo">STICK<span>WORLD</span></div>
+    <div class="page-title">🖼️ Community Fan Art</div>
+  </div>
 </div>
+
+<div class="submit-wrapper">
+  <div class="submit-box">
+    <div class="submit-title">👌 SEND YOUR FAN ART</div>
+    <div class="submit-text">
+      Join the universe — send your creation to
+    </div>
+    <a href="mailto:stickworldgamecontact@gmail.com" class="submit-mail">
+      stickworldgamecontact@gmail.com
+    </a>
+  </div>
+</div>
+
 
 <div class="status-bar">
   <span class="status-dot"></span>
@@ -218,11 +307,14 @@ body::before{
   <span class="status-count" id="foundCount"></span>
 </div>
 
+
+
 <div class="gallery" id="gallery"></div>
 <div class="end-msg" id="endMsg" style="display:none">
   <div class="end-line"></div>
   You've reached the end of the universe
 </div>
+
 
 <!-- Lightbox -->
 <div class="lightbox" id="lightbox" onclick="lbClickBg(event)">
