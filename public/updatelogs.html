@@ -121,8 +121,6 @@ body::before{
 //   "Color": "Green"
 // }
 
-const BASE = 'https://stickworld.neocities.org/updates/';
-
 const COLOR_ICONS = {
   green:'✅', blue:'🔵', red:'🔴', yellow:'⭐',
   purple:'💜', orange:'🟠', pink:'🩷', cyan:'🟢', white:'⚪'
@@ -138,23 +136,23 @@ async function loadLogs() {
   const errorDiv = document.getElementById('errorWrap');
   const errorTxt = document.getElementById('errorText');
 
-  const logs = [];
-  let i = 1;
+  let logs = [];
 
-  while (true) {
-    try {
-      const res = await fetch(BASE + i + '.json', { cache: 'no-cache' });
-      if (!res.ok) break; // 404 = no more logs
-      const data = await res.json();
-      // Normalize keys (case-insensitive)
+  try {
+    const res = await fetch('/api/updates', { cache: 'no-cache' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const raw = await res.json();
+    // Normalize keys (case-insensitive)
+    logs = raw.map(data => {
       const norm = {};
       Object.keys(data).forEach(k => norm[k.toLowerCase()] = data[k]);
-      norm._num = i;
-      logs.push(norm);
-      i++;
-    } catch(e) {
-      break;
-    }
+      return norm;
+    });
+  } catch(e) {
+    loading.style.display = 'none';
+    errorTxt.innerText = 'Could not load updates: ' + e.message;
+    errorDiv.style.display = 'block';
+    return;
   }
 
   loading.style.display = 'none';
