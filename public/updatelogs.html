@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>StickWorld — Update Logs</title>
+<link rel="icon" type="image/png" href="https://stickworld.neocities.org/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --sky1:#1a2a4a;--sky2:#0d1520;
+  --border:rgba(100,180,255,0.18);
+  --accent:#5ba3f5;--accent2:#ff6b6b;
+  --text:#c8daf8;--muted:#4a6a9a;
+}
+html,body{min-height:100%;overflow-x:hidden;}
+body{
+  font-family:'Rajdhani',sans-serif;
+  background:linear-gradient(160deg,var(--sky1) 0%,var(--sky2) 100%);
+  color:var(--text);
+  min-height:100vh;
+  padding-bottom:60px;
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:
+    radial-gradient(1px 1px at 10% 15%,rgba(255,255,255,.6) 0%,transparent 100%),
+    radial-gradient(1px 1px at 30% 40%,rgba(255,255,255,.4) 0%,transparent 100%),
+    radial-gradient(1.5px 1.5px at 55% 20%,rgba(255,255,255,.5) 0%,transparent 100%),
+    radial-gradient(1px 1px at 75% 60%,rgba(255,255,255,.3) 0%,transparent 100%),
+    radial-gradient(1px 1px at 90% 10%,rgba(255,255,255,.5) 0%,transparent 100%),
+    radial-gradient(1px 1px at 20% 80%,rgba(255,255,255,.3) 0%,transparent 100%),
+    radial-gradient(1px 1px at 65% 85%,rgba(255,255,255,.4) 0%,transparent 100%),
+    radial-gradient(1px 1px at 42% 70%,rgba(255,255,255,.3) 0%,transparent 100%);
+  pointer-events:none;z-index:0;
+}
+
+/* NAV */
+.nav{
+  position:sticky;top:0;z-index:50;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 20px;
+  background:rgba(10,18,40,.85);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{
+  font-family:'Orbitron',monospace;font-size:16px;font-weight:800;
+  color:#fff;letter-spacing:4px;text-decoration:none;
+  text-shadow:0 0 20px rgba(91,163,245,.5);
+}
+.nav-logo span{color:var(--accent2);}
+.nav-back{
+  background:rgba(91,163,245,.1);
+  border:1px solid rgba(91,163,245,.2);
+  border-radius:9px;color:var(--accent);
+  font-family:'Rajdhani',sans-serif;font-size:13px;
+  letter-spacing:1px;padding:6px 14px;cursor:pointer;
+  text-decoration:none;transition:all .2s;
+}
+.nav-back:hover{background:rgba(91,163,245,.2);}
+
+/* HEADER */
+.page-header{
+  text-align:center;padding:40px 20px 20px;
+  position:relative;z-index:1;
+}
+.page-title{
+  font-family:'Orbitron',monospace;
+  font-size:clamp(22px,5vw,36px);
+  font-weight:800;letter-spacing:4px;color:#fff;
+  text-shadow:0 0 30px rgba(91,163,245,.5);
+}
+.page-sub{
+  font-size:13px;color:var(--muted);
+  letter-spacing:2px;margin-top:8px;text-transform:uppercase;
+}
+
+/* LOADING */
+#loadingWrap{
+  text-align:center;padding:60px 20px;
+  position:relative;z-index:1;
+}
+.spinner{
+  width:36px;height:36px;margin:0 auto 16px;
+  border:3px solid rgba(91,163,245,.15);
+  border-top-color:var(--accent);
+  border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* TIMELINE */
+.timeline{
+  position:relative;z-index:1;
+  max-width:680px;margin:0 auto;
+  padding:10px 20px 40px;
+}
+/* vertical line */
+.timeline::before{
+  content:'';position:absolute;
+  left:calc(20px + 18px);top:0;bottom:0;width:2px;
+  background:linear-gradient(180deg,rgba(91,163,245,.4),rgba(91,163,245,.05));
+}
+
+.log-entry{
+  display:flex;gap:18px;
+  margin-bottom:28px;
+  animation:fadeUp .4s ease both;
+}
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(16px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+/* dot on timeline */
+.log-dot{
+  flex-shrink:0;
+  width:38px;height:38px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;
+  border:2px solid;
+  position:relative;z-index:2;
+  margin-top:4px;
+}
+
+.log-card{
+  flex:1;
+  background:linear-gradient(135deg,rgba(30,50,90,.85),rgba(15,28,60,.9));
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:18px 20px;
+  box-shadow:0 4px 24px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.05);
+  backdrop-filter:blur(12px);
+  transition:transform .2s,box-shadow .2s;
+}
+.log-card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.4);}
+
+.log-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;}
+.log-name{
+  font-family:'Orbitron',monospace;
+  font-size:clamp(13px,3vw,16px);
+  font-weight:600;letter-spacing:2px;color:#fff;
+}
+.log-date{
+  font-size:11px;color:var(--muted);
+  letter-spacing:1px;white-space:nowrap;
+  background:rgba(255,255,255,.04);
+  padding:3px 8px;border-radius:6px;
+  border:1px solid rgba(255,255,255,.06);
+}
+.log-desc{
+  margin-top:10px;font-size:14px;
+  color:#8898c8;line-height:1.6;
+}
+.log-num{
+  font-size:11px;color:var(--muted);
+  margin-top:10px;letter-spacing:1px;
+  font-family:'Orbitron',monospace;
+}
+
+/* ERROR */
+#errorWrap{
+  text-align:center;padding:40px 20px;
+  position:relative;z-index:1;display:none;
+}
+.error-icon{font-size:40px;margin-bottom:12px;}
+.error-text{color:var(--muted);font-size:14px;}
+
+/* FOOTER */
+.footer{
+  text-align:center;font-size:11px;color:var(--muted);
+  letter-spacing:1px;margin-top:10px;
+  position:relative;z-index:1;
+}
+
+/* COLOR THEMES for dots + card accent */
+.color-green  .log-dot{background:rgba(46,204,113,.15);border-color:#2ecc71;color:#2ecc71;}
+.color-green  .log-card{border-left:3px solid #2ecc71;}
+.color-blue   .log-dot{background:rgba(91,163,245,.15);border-color:#5ba3f5;color:#5ba3f5;}
+.color-blue   .log-card{border-left:3px solid #5ba3f5;}
+.color-red    .log-dot{background:rgba(231,76,60,.15);border-color:#e74c3c;color:#e74c3c;}
+.color-red    .log-card{border-left:3px solid #e74c3c;}
+.color-yellow .log-dot{background:rgba(241,196,15,.15);border-color:#f1c40f;color:#f1c40f;}
+.color-yellow .log-card{border-left:3px solid #f1c40f;}
+.color-purple .log-dot{background:rgba(155,89,182,.15);border-color:#9b59b6;color:#9b59b6;}
+.color-purple .log-card{border-left:3px solid #9b59b6;}
+.color-orange .log-dot{background:rgba(230,126,34,.15);border-color:#e67e22;color:#e67e22;}
+.color-orange .log-card{border-left:3px solid #e67e22;}
+.color-pink   .log-dot{background:rgba(255,107,107,.15);border-color:#ff6b6b;color:#ff6b6b;}
+.color-pink   .log-card{border-left:3px solid #ff6b6b;}
+.color-cyan   .log-dot{background:rgba(22,160,133,.15);border-color:#16a085;color:#16a085;}
+.color-cyan   .log-card{border-left:3px solid #16a085;}
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <a class="nav-logo" href="/">STICK<span>WORLD</span></a>
+  <a class="nav-back" href="/">← Back</a>
+</div>
+
+<div class="page-header">
+  <div class="page-title">UPDATE LOGS</div>
+  <div class="page-sub">Every change, every fix, every feature</div>
+</div>
+
+<div id="loadingWrap">
+  <div class="spinner"></div>
+  <div style="color:var(--muted);font-size:13px;letter-spacing:1px;">Loading updates...</div>
+</div>
+
+<div id="errorWrap">
+  <div class="error-icon">📭</div>
+  <div class="error-text">No update logs found.</div>
+</div>
+
+<div class="timeline" id="timeline"></div>
+
+<div class="footer">© coikinator / Sandro Evrard — All rights reserved</div>
+
+<script>
+const BASE_URL = 'https://stickworld.neocities.org/updates/';
+
+// Color → emoji icon
+const COLOR_ICONS = {
+  green:'✅', blue:'🔵', red:'🔴', yellow:'⭐',
+  purple:'💜', orange:'🟠', pink:'🩷', cyan:'🟢',
+};
+
+function parseLog(text) {
+  const result = {};
+  text.split('\n').forEach(line => {
+    const idx = line.indexOf(':');
+    if (idx === -1) return;
+    const key = line.slice(0, idx).trim().toLowerCase();
+    const val = line.slice(idx + 1).trim();
+    result[key] = val;
+  });
+  return result;
+}
+
+function colorClass(c) {
+  if (!c) return 'color-blue';
+  return 'color-' + c.toLowerCase().trim();
+}
+
+async function loadLogs() {
+  const timeline = document.getElementById('timeline');
+  const loading  = document.getElementById('loadingWrap');
+  const errorDiv = document.getElementById('errorWrap');
+
+  const logs = [];
+  let i = 1;
+
+  // Fetch until we get a 404
+  while (true) {
+    try {
+      const res = await fetch(BASE_URL + i + '.txt');
+      if (!res.ok) break;
+      const text = await res.text();
+      const parsed = parseLog(text);
+      parsed._num = i;
+      logs.push(parsed);
+      i++;
+    } catch(e) { break; }
+  }
+
+  loading.style.display = 'none';
+
+  if (logs.length === 0) {
+    errorDiv.style.display = 'block';
+    return;
+  }
+
+  // Show newest first
+  const sorted = [...logs].reverse();
+
+  sorted.forEach((log, idx) => {
+    const cc   = colorClass(log.color);
+    const icon = COLOR_ICONS[log.color?.toLowerCase().trim()] || '📋';
+    const name = log.updatename || log.name || ('Update #' + log._num);
+    const desc = log.description || log.desc || '';
+    const date = log.date || '';
+
+    const entry = document.createElement('div');
+    entry.className = 'log-entry ' + cc;
+    entry.style.animationDelay = (idx * 0.07) + 's';
+    entry.innerHTML =
+      '<div class="log-dot">' + icon + '</div>' +
+      '<div class="log-card">' +
+        '<div class="log-top">' +
+          '<div class="log-name">' + name + '</div>' +
+          (date ? '<div class="log-date">📅 ' + date + '</div>' : '') +
+        '</div>' +
+        (desc ? '<div class="log-desc">' + desc + '</div>' : '') +
+        '<div class="log-num">UPDATE #' + log._num + '</div>' +
+      '</div>';
+    timeline.appendChild(entry);
+  });
+}
+
+loadLogs();
+</script>
+</body>
+</html>
