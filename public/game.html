@@ -101,10 +101,7 @@ canvas{display:block;}
   display:flex;align-items:center;justify-content:center;
   padding:4px;transition:background .1s,transform .1s;
 }
-.emoji-item:hover,
-.emoji-item:active {
-  background:rgba(91,163,245,.2);
-}
+.emoji-item:hover,.emoji-item:active{background:rgba(91,163,245,.2);transform:scale(1.1);}
 .emoji-item img{width:100%;height:100%;object-fit:contain;}
 .emoji-loading{font-size:11px;color:#888;text-align:center;padding:10px;}
 
@@ -231,14 +228,16 @@ function toggleEmojiPanel() {
   if (emojiPanelOpen) {
     // Position panel above chat
     panel.style.display = 'block';
-    panel.style.bottom = '70px';
+    panel.style.bottom  = (chat.offsetHeight + 16) + 'px';
   } else {
     panel.style.display = 'none';
   }
 }
 
 function sendEmoji(name) {
-  socket.emit('chat', { emoji: name });
+  // Send as special emoji message
+  socket.emit('chat', { text: '', emoji: name });
+  // Close panel after sending
   toggleEmojiPanel();
 }
 
@@ -260,37 +259,27 @@ function getEmojiImg(name) {
 }
 
 socket.on('chat', data => {
+  // Add to chat log
   const d = document.createElement('div');
-
-  const nameSpan = document.createElement('span');
-  nameSpan.textContent = data.username + ':';
-  d.appendChild(nameSpan);
-
   if (data.emoji) {
+    d.innerHTML = '<span>' + data.username + ':</span>';
     const img = document.createElement('img');
     img.src = EMOJI_BASE + data.emoji + '.png';
     img.className = 'msg-emoji';
     img.alt = data.emoji;
     d.appendChild(img);
-
+    // Preload for canvas
     getEmojiImg(data.emoji);
-  } 
-  else if (data.text) {
-    const txt = document.createTextNode(' ' + data.text);
-    d.appendChild(txt);
+  } else {
+    d.innerHTML = '<span>' + data.username + ':</span> ' + data.text;
   }
-
   const msgs = document.getElementById('msgs');
   msgs.appendChild(d);
   msgs.scrollTop = msgs.scrollHeight;
 
+  // Bubble
   if (!chatBubbles[data.id]) chatBubbles[data.id] = [];
-  chatBubbles[data.id].push({
-    text: data.text === '[emoji]' ? '' : data.text,
-    emoji: data.emoji || null,
-    born: Date.now()
-  });
-
+  chatBubbles[data.id].push({ text: data.text || '', emoji: data.emoji || null, born: Date.now() });
   if (chatBubbles[data.id].length > 4) chatBubbles[data.id].shift();
 });
 
