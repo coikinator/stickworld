@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>StickWorld — Fan Art</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --sky1:#1a2a4a;--sky2:#0d1520;
+  --glass:rgba(255,255,255,0.07);
+  --border:rgba(100,180,255,0.18);
+  --accent:#5ba3f5;--accent2:#ff6b6b;
+  --text:#c8daf8;--muted:#4a6a9a;
+}
+html,body{min-height:100%;background:linear-gradient(160deg,var(--sky1) 0%,var(--sky2) 100%);color:var(--text);font-family:'Rajdhani',sans-serif;}
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:
+    radial-gradient(1px 1px at 10% 15%,rgba(255,255,255,.6) 0%,transparent 100%),
+    radial-gradient(1px 1px at 30% 40%,rgba(255,255,255,.4) 0%,transparent 100%),
+    radial-gradient(1.5px 1.5px at 55% 20%,rgba(255,255,255,.5) 0%,transparent 100%),
+    radial-gradient(1px 1px at 75% 60%,rgba(255,255,255,.3) 0%,transparent 100%),
+    radial-gradient(1px 1px at 90% 10%,rgba(255,255,255,.5) 0%,transparent 100%),
+    radial-gradient(1px 1px at 20% 80%,rgba(255,255,255,.3) 0%,transparent 100%),
+    radial-gradient(1px 1px at 65% 85%,rgba(255,255,255,.4) 0%,transparent 100%),
+    radial-gradient(1px 1px at 42% 70%,rgba(255,255,255,.3) 0%,transparent 100%);
+  pointer-events:none;z-index:0;
+}
+
+/* Header */
+.header{
+  position:relative;z-index:2;
+  padding:32px 24px 0;
+  text-align:center;
+}
+.back-btn{
+  position:absolute;left:20px;top:30px;
+  background:rgba(91,163,245,.1);
+  border:1px solid rgba(91,163,245,.2);
+  border-radius:10px;
+  color:var(--accent);
+  font-family:'Rajdhani',sans-serif;
+  font-size:13px;letter-spacing:1px;
+  padding:7px 14px;cursor:pointer;
+  text-decoration:none;display:inline-flex;align-items:center;gap:6px;
+  transition:all .2s;
+}
+.back-btn:hover{background:rgba(91,163,245,.2);}
+.logo-icon{
+  width:44px;height:44px;margin:0 auto 10px;
+  background:url("https://stickworld.neocities.org/favicon.png") center/cover no-repeat;
+  border-radius:10px;
+  box-shadow:0 0 20px rgba(91,163,245,0.5);
+}
+.logo{
+  font-family:'Orbitron',monospace;font-size:clamp(22px,6vw,38px);font-weight:800;
+  letter-spacing:5px;color:#fff;
+  text-shadow:0 0 40px rgba(91,163,245,.6),0 0 80px rgba(91,163,245,.2);
+  line-height:1;
+}
+.logo span{color:var(--accent2);}
+.page-title{
+  font-family:'Orbitron',monospace;
+  font-size:clamp(11px,2.5vw,13px);
+  color:var(--muted);letter-spacing:4px;
+  margin-top:8px;text-transform:uppercase;
+}
+
+/* Status bar */
+.status-bar{
+  position:relative;z-index:2;
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  margin:22px 24px 0;
+  padding:10px 20px;
+  background:rgba(91,163,245,.06);
+  border:1px solid rgba(91,163,245,.12);
+  border-radius:12px;
+  font-size:12px;color:var(--muted);letter-spacing:1px;
+}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--accent2);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(255,107,107,.4);}50%{opacity:.7;box-shadow:0 0 0 5px rgba(255,107,107,0);}}
+.status-count{color:var(--accent);font-weight:600;}
+
+/* Gallery grid */
+.gallery{
+  position:relative;z-index:1;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(min(260px,45vw),1fr));
+  gap:16px;
+  padding:24px;
+  max-width:1100px;margin:0 auto;
+}
+
+.art-card{
+  position:relative;
+  background:linear-gradient(135deg,rgba(30,50,90,.85),rgba(15,28,60,.9));
+  border:1px solid var(--border);
+  border-radius:16px;
+  overflow:hidden;
+  cursor:pointer;
+  transition:transform .25s,box-shadow .25s,border-color .25s;
+  box-shadow:0 4px 20px rgba(0,0,0,.3);
+  animation:fadeIn .5s ease both;
+}
+.art-card:hover{
+  transform:translateY(-4px) scale(1.01);
+  box-shadow:0 12px 40px rgba(0,0,0,.5),0 0 30px rgba(91,163,245,.12);
+  border-color:rgba(91,163,245,.35);
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+
+.art-card img{
+  width:100%;
+  aspect-ratio:1/1;
+  object-fit:cover;
+  display:block;
+  background:#0d1a30;
+  transition:transform .35s;
+}
+.art-card:hover img{transform:scale(1.04);}
+
+.art-label{
+  padding:10px 14px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.art-num{
+  font-family:'Orbitron',monospace;font-size:11px;
+  color:var(--muted);letter-spacing:2px;
+}
+.art-badge{
+  font-size:10px;letter-spacing:1px;
+  color:rgba(91,163,245,.5);
+  background:rgba(91,163,245,.07);
+  padding:2px 8px;border-radius:20px;
+  border:1px solid rgba(91,163,245,.12);
+}
+
+/* No more / empty */
+.end-msg{
+  position:relative;z-index:2;
+  text-align:center;padding:40px 24px 60px;
+  font-size:13px;color:var(--muted);letter-spacing:2px;
+}
+.end-line{
+  width:60px;height:1px;background:rgba(91,163,245,.2);
+  margin:0 auto 14px;
+}
+
+/* Lightbox */
+.lightbox{
+  display:none;position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,10,.88);backdrop-filter:blur(10px);
+  align-items:center;justify-content:center;
+  padding:20px;
+}
+.lightbox.open{display:flex;}
+.lightbox-inner{
+  position:relative;
+  max-width:min(800px,90vw);
+  max-height:90vh;
+  animation:lbIn .22s ease;
+}
+@keyframes lbIn{from{opacity:0;transform:scale(.93);}to{opacity:1;transform:scale(1);}}
+.lightbox-inner img{
+  max-width:100%;max-height:80vh;
+  border-radius:14px;
+  border:1px solid rgba(91,163,245,.2);
+  box-shadow:0 20px 80px rgba(0,0,0,.7),0 0 60px rgba(91,163,245,.08);
+  display:block;
+}
+.lightbox-num{
+  text-align:center;margin-top:14px;
+  font-family:'Orbitron',monospace;font-size:12px;
+  color:var(--muted);letter-spacing:3px;
+}
+.lb-close{
+  position:absolute;top:-14px;right:-14px;
+  width:34px;height:34px;border-radius:50%;
+  background:rgba(255,107,107,.15);border:1px solid rgba(255,107,107,.3);
+  color:#ff9999;font-size:16px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .2s;
+}
+.lb-close:hover{background:rgba(255,107,107,.3);}
+.lb-nav{
+  position:absolute;top:50%;transform:translateY(-50%);
+  width:40px;height:40px;border-radius:50%;
+  background:rgba(91,163,245,.12);border:1px solid rgba(91,163,245,.22);
+  color:var(--accent);font-size:18px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .2s;
+}
+.lb-nav:hover{background:rgba(91,163,245,.25);}
+.lb-prev{left:-50px;} .lb-next{right:-50px;}
+@media(max-width:600px){.lb-prev{left:-20px;}.lb-next{right:-20px;}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a class="back-btn" href="/">← HOME</a>
+  <div class="logo-icon"></div>
+  <div class="logo">STICK<span>WORLD</span></div>
+  <div class="page-title">⭐ Community Fan Art</div>
+</div>
+
+<div class="status-bar">
+  <span class="status-dot"></span>
+  <span id="statusText">Scanning the universe…</span>
+  <span class="status-count" id="foundCount"></span>
+</div>
+
+<div class="gallery" id="gallery"></div>
+<div class="end-msg" id="endMsg" style="display:none">
+  <div class="end-line"></div>
+  You've reached the end of the universe
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="lbClickBg(event)">
+  <div class="lightbox-inner" id="lbInner">
+    <div class="lb-close" onclick="closeLb()">✕</div>
+    <button class="lb-nav lb-prev" onclick="lbNav(-1)">‹</button>
+    <button class="lb-nav lb-next" onclick="lbNav(1)">›</button>
+    <img id="lbImg" src="" alt="">
+    <div class="lightbox-num" id="lbNum"></div>
+  </div>
+</div>
+
+<script>
+const BASE = 'https://stickworld.onrender.com/fanart/';
+const gallery = document.getElementById('gallery');
+const foundCount = document.getElementById('foundCount');
+const statusText = document.getElementById('statusText');
+const endMsg = document.getElementById('endMsg');
+
+let loaded = [];
+let current = 0;
+
+async function loadAll() {
+  let i = 1;
+  let misses = 0;
+  while (misses < 3) {
+    const url = BASE + i;
+    const ok = await testImage(url);
+    if (ok) {
+      addCard(i, url);
+      loaded.push(i);
+      foundCount.textContent = loaded.length + ' pieces';
+      misses = 0;
+    } else {
+      misses++;
+    }
+    i++;
+  }
+  statusText.textContent = loaded.length > 0 ? 'Fan art from the community' : 'No fan art yet — be the first!';
+  foundCount.textContent = loaded.length > 0 ? loaded.length + ' pieces' : '';
+  endMsg.style.display = '';
+}
+
+function testImage(url) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => resolve(true);
+    img.onerror = () => resolve(false);
+    img.src = url;
+  });
+}
+
+function addCard(num, url) {
+  const idx = loaded.length;
+  const card = document.createElement('div');
+  card.className = 'art-card';
+  card.style.animationDelay = (idx * 0.06) + 's';
+  card.innerHTML = `
+    <img src="${url}" alt="Fan Art #${num}" loading="lazy">
+    <div class="art-label">
+      <span class="art-num">#${String(num).padStart(3,'0')}</span>
+      <span class="art-badge">FAN ART</span>
+    </div>
+  `;
+  card.onclick = () => openLb(idx);
+  gallery.appendChild(card);
+}
+
+// Lightbox
+const lb = document.getElementById('lightbox');
+const lbImg = document.getElementById('lbImg');
+const lbNum = document.getElementById('lbNum');
+
+function openLb(idx) {
+  current = idx;
+  showLb();
+  lb.classList.add('open');
+}
+function showLb() {
+  const num = loaded[current];
+  lbImg.src = BASE + num;
+  lbNum.textContent = 'FAN ART #' + String(num).padStart(3,'0') + '  ·  ' + (current+1) + ' / ' + loaded.length;
+}
+function closeLb() { lb.classList.remove('open'); }
+function lbClickBg(e) { if (e.target === lb) closeLb(); }
+function lbNav(dir) {
+  current = (current + dir + loaded.length) % loaded.length;
+  showLb();
+}
+document.addEventListener('keydown', e => {
+  if (!lb.classList.contains('open')) return;
+  if (e.key === 'Escape') closeLb();
+  if (e.key === 'ArrowLeft') lbNav(-1);
+  if (e.key === 'ArrowRight') lbNav(1);
+});
+
+loadAll();
+</script>
+</body>
+</html>
