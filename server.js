@@ -149,11 +149,17 @@ io.on('connection', (socket) => {
     if (data.jump && p.onGround) { p.vy = JUMP_FORCE; p.onGround = false; }
   });
 
-  socket.on('chat', (data) => {
-    const p = players[socket.id];
-    if (!p) return;
-    io.emit('chat', { id: socket.id, username: p.username, text: data.text });
+socket.on('chat', (data) => {
+  const p = players[socket.id];
+  if (!p) return;
+
+  io.emit('chat', {
+    id: socket.id,
+    username: p.username,
+    text: data.text || '',
+    emoji: data.emoji || null
   });
+});
 
   socket.on('disconnect', () => {
     const p = players[socket.id];
