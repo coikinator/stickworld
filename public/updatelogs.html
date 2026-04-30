@@ -258,7 +258,7 @@ async function loadLogs() {
   // Fetch until we get a 404
   while (true) {
     try {
-      const res = await fetch(BASE_URL + i + '.txt');
+      const res = await fetch(BASE_URL + i + '.json');
       if (!res.ok) break;
       const text = await res.text();
       const parsed = parseLog(text);
