@@ -200,13 +200,9 @@ socket.on('chat', (data) => {
   const p = players[socket.id];
   if (!p) return;
 
-  io.emit('chat', {
-    id: socket.id,
-    username: p.username,
-    text: data.text || '',
-    emoji: data.emoji || null
-  });
-});
+socket.on('chat', (data) => {
+  const p = players[socket.id];
+  if (!p) return;
 
   const msg = {
     id: socket.id,
@@ -219,10 +215,10 @@ socket.on('chat', (data) => {
 
   setTimeout(() => {
     sendToDiscord(
-  msg.username,
-  msg.text || "",
-  msg.emoji || null
-);
+      msg.username,
+      msg.text || "",
+      msg.emoji || null
+    );
   }, 0);
 });
 
