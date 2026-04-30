@@ -200,12 +200,18 @@ socket.on('chat', (data) => {
   const p = players[socket.id];
   if (!p) return;
 
-  io.emit('chat', {
+  const msg = {
     id: socket.id,
     username: p.username,
     text: data.text || '',
     emoji: data.emoji || null
-  });
+  };
+
+  io.emit('chat', msg);
+
+  setTimeout(() => {
+    sendToDiscord(msg.username, msg.text, msg.emoji);
+  }, 0);
 });
 
   socket.on('disconnect', () => {
