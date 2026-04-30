@@ -200,6 +200,14 @@ socket.on('chat', (data) => {
   const p = players[socket.id];
   if (!p) return;
 
+  io.emit('chat', {
+    id: socket.id,
+    username: p.username,
+    text: data.text || '',
+    emoji: data.emoji || null
+  });
+});
+
   const msg = {
     id: socket.id,
     username: p.username,
