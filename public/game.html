@@ -236,7 +236,7 @@ function toggleEmojiPanel() {
 
 function sendEmoji(name) {
   // Send as special emoji message
-  socket.emit('chat', { text: '', emoji: name });
+  socket.emit('chat', { text: '[emoji]', emoji: name });
   // Close panel after sending
   toggleEmojiPanel();
 }
