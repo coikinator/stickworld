@@ -96,6 +96,8 @@ a:hover {
 </div>
 
 <script>
+if (localStorage.getItem('token')) location.href = 'https://stickworld.onrender.com/';
+  
 async function register() {
   const res = await fetch('/api/register', {
     method: 'POST',
