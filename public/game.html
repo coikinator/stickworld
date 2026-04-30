@@ -228,16 +228,14 @@ function toggleEmojiPanel() {
   if (emojiPanelOpen) {
     // Position panel above chat
     panel.style.display = 'block';
-    panel.style.bottom  = (chat.offsetHeight + 16) + 'px';
+    panel.style.bottom = '70px';
   } else {
     panel.style.display = 'none';
   }
 }
 
 function sendEmoji(name) {
-  // Send as special emoji message
-  socket.emit('chat', { text: '', emoji: name });
-  // Close panel after sending
+  socket.emit('chat', { text: '[emoji]', emoji: name });
   toggleEmojiPanel();
 }
 
@@ -259,27 +257,36 @@ function getEmojiImg(name) {
 }
 
 socket.on('chat', data => {
-  // Add to chat log
   const d = document.createElement('div');
+
+  const nameSpan = document.createElement('span');
+  nameSpan.textContent = data.username + ':';
+  d.appendChild(nameSpan);
+
   if (data.emoji) {
-    d.innerHTML = '<span>' + data.username + ':</span>';
     const img = document.createElement('img');
     img.src = EMOJI_BASE + data.emoji + '.png';
     img.className = 'msg-emoji';
     img.alt = data.emoji;
     d.appendChild(img);
-    // Preload for canvas
+
     getEmojiImg(data.emoji);
-  } else {
-    d.innerHTML = '<span>' + data.username + ':</span> ' + data.text;
+  } else if (data.text && data.text !== '[emoji]') {
+    const txt = document.createTextNode(' ' + data.text);
+    d.appendChild(txt);
   }
+
   const msgs = document.getElementById('msgs');
   msgs.appendChild(d);
   msgs.scrollTop = msgs.scrollHeight;
 
-  // Bubble
   if (!chatBubbles[data.id]) chatBubbles[data.id] = [];
-  chatBubbles[data.id].push({ text: data.text || '', emoji: data.emoji || null, born: Date.now() });
+  chatBubbles[data.id].push({
+    text: data.text === '[emoji]' ? '' : data.text,
+    emoji: data.emoji || null,
+    born: Date.now()
+  });
+
   if (chatBubbles[data.id].length > 4) chatBubbles[data.id].shift();
 });
 
