@@ -332,6 +332,14 @@ function lbNav(dir) {
   showLb();
 }
 
+document.addEventListener("click", () => {
+  const music = document.getElementById("bgMusic");
+  if (music) {
+    music.volume = 0.5; // optional
+    music.play().catch(() => {});
+  }
+}, { once: true });  
+
 document.addEventListener('keydown', e => {
   if (!lb.classList.contains('open')) return;
   if (e.key === 'Escape') closeLb();
