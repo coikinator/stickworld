@@ -167,6 +167,14 @@ async function loadLogs() {
     return;
   }
 
+  document.addEventListener("click", () => {
+  const music = document.getElementById("bgMusic");
+  if (music) {
+   // music.volume = 0.5;
+    music.play().catch(() => {});
+  }
+}, { once: true });
+
   // Newest first
   [...logs].reverse().forEach((log, idx) => {
     const colorKey = (log.color || 'blue').toLowerCase().trim();
