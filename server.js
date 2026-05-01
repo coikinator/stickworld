@@ -305,17 +305,13 @@ setInterval(async () => {
 
     if (!p?.username) continue;
 
-    await User.updateOne(
-      { username: p.username },
-      {
-        $set: {
-          coins: p.coins,
-          lastReward: p.lastReward
-        }
-      }
-    );
-  }
-}, 5000);
+await User.updateOne(
+  { username: p.username },
+  { $set: {    // ← { vor $set ergänzen
+    coins: p.coins,
+    lastReward: p.lastReward
+  } }
+);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log('StickWorld on port ' + PORT));
