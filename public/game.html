@@ -11,6 +11,23 @@
 body{overflow:hidden;font-family:'Rajdhani',sans-serif;background:#87ceeb;touch-action:none;user-select:none;}
 canvas{display:block;}
 
+
+
+#skinPanel{
+  position:absolute;
+  bottom:60px;
+  left:10px;
+  width:min(260px,42vw);
+  background:rgba(255,255,255,0.75);
+  backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,0.8);
+  border-radius:14px;
+  padding:8px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.12);
+  z-index:11;
+  display:none;
+}
+  
 #skinMenu{
 position:absolute;
 top:70px;
@@ -189,52 +206,13 @@ background:url('https://your-placeholder-url.com/skin.png') center/cover;
     <button class="emoji-open-btn" onclick="toggleEmojiPanel()" title="Emojis">
       <img src="https://stickworld.neocities.org/icons/ChatBig.png" alt="emoji">
     </button>
+    <button class="emoji-open-btn" onclick="toggleSkinPanel()" title="Skins">
+  <img src="https://PLACEHOLDER.com/skin.png" alt="skin">
+</button>
   </div>
 </div>
 
-<!-- Emoji Panel -->
-<!-- SKIN PANEL -->
-<div id="skinPanel">
-  <div class="emoji-panel-header">
-    <span>SKINS</span>
-    <button class="emoji-close-btn" onclick="toggleSkinPanel()">✕</button>
-  </div>
-
-  <div class="emoji-grid">
-
-    <div class="emoji-item" onclick="setMyColor('#2980b9')">
-      <div style="width:24px;height:24px;border-radius:50%;background:#2980b9;"></div>
-    </div>
-
-    <div class="emoji-item" onclick="setMyColor('#e74c3c')">
-      <div style="width:24px;height:24px;border-radius:50%;background:#e74c3c;"></div>
-    </div>
-
-    <div class="emoji-item" onclick="setMyColor('#27ae60')">
-      <div style="width:24px;height:24px;border-radius:50%;background:#27ae60;"></div>
-    </div>
-
-    <div class="emoji-item" onclick="setMyColor('#8e44ad')">
-      <div style="width:24px;height:24px;border-radius:50%;background:#8e44ad;"></div>
-    </div>
-
-    <div class="emoji-item" onclick="setMyColor('#f39c12')">
-      <div style="width:24px;height:24px;border-radius:50%;background:#f39c12;"></div>
-    </div>
-
-    <div class="emoji-item" onclick="setMyColor('#16a085')">
-      <div style="width:24px;height:24px;border-radius:50%;background:#16a085;"></div>
-    </div>
-
-    <!-- PLACEHOLDER IMAGE -->
-    <div class="emoji-item" onclick="setMySkin('https://YOUR-URL.com/skin.png')">
-      <img src="https://YOUR-URL.com/skin.png">
-    </div>
-
-  </div>
-</div>
-
-  
+<!-- Emoji Panel -->  
 <div id="controls">
   <div class="ctrl-top"><div class="btn" id="btnJump">⬆️</div></div>
   <div class="ctrl-bot">
@@ -257,6 +235,31 @@ document.getElementById('nameDisplay').innerText = '👤 ' + username;
 function goHome()   { location.href = '/'; }
 function doLogout() { localStorage.clear(); location.href = '/login.html'; }
 
+<div id="skinPanel">
+  <div class="emoji-panel-header">
+    <span>SKINS</span>
+    <button class="emoji-close-btn" onclick="toggleSkinPanel()">✕</button>
+  </div>
+
+  <div class="emoji-grid">
+    <div class="emoji-item" onclick="setMyColor('#2980b9')">
+      <div style="width:24px;height:24px;border-radius:50%;background:#2980b9;"></div>
+    </div>
+
+    <div class="emoji-item" onclick="setMyColor('#e74c3c')">
+      <div style="width:24px;height:24px;border-radius:50%;background:#e74c3c;"></div>
+    </div>
+
+    <div class="emoji-item" onclick="setMyColor('#27ae60')">
+      <div style="width:24px;height:24px;border-radius:50%;background:#27ae60;"></div>
+    </div>
+
+    <div class="emoji-item">
+      <img src="https://PLACEHOLDER.com/skin.png">
+    </div>
+  </div>
+</div>
+  
 // ══════════════════════════════════════════════
 //  EMOJIS
 // ══════════════════════════════════════════════
@@ -550,6 +553,21 @@ function drawStickman(p){
   ctx.beginPath();ctx.moveTo(px,py-15);ctx.lineTo(px-8-ls*0.4,py+2-lb);ctx.lineTo(px-10-ls*0.7,py+18);ctx.stroke();
   ctx.beginPath();ctx.moveTo(px,py-15);ctx.lineTo(px+8+ls*0.4,py+2-lb);ctx.lineTo(px+10+ls*0.7,py+18);ctx.stroke();
   ctx.restore();
+}
+
+  function toggleSkinPanel(){
+const panel = document.getElementById("skinPanel");
+
+if(panel.style.display=="block"){
+panel.style.display="none";
+}else{
+panel.style.display="block";
+}
+}
+
+function setMyColor(color){
+playerColors[socket.id]=color;
+document.getElementById("skinPanel").style.display="none";
 }
 
 function loop(){
