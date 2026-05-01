@@ -7,6 +7,64 @@
 <link rel="icon" type="image/png" href="https://stickworld.neocities.org/favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+
+#offlineScreen{
+  position:fixed;
+  inset:0;
+  background:linear-gradient(160deg,#0d1520,#1a2a4a);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:999999;
+}
+
+.offline-card{
+  width:min(360px,90vw);
+  padding:30px;
+  border-radius:18px;
+  text-align:center;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(100,180,255,0.2);
+  backdrop-filter:blur(20px);
+  box-shadow:0 20px 60px rgba(0,0,0,0.5);
+  color:#c8daf8;
+  font-family:'Rajdhani',sans-serif;
+}
+
+.offline-card h1{
+  font-family:'Orbitron',monospace;
+  font-size:22px;
+  margin:15px 0;
+  color:#ff6b6b;
+  letter-spacing:3px;
+}
+
+.offline-card p{
+  font-size:14px;
+  opacity:0.8;
+  margin-bottom:10px;
+}
+
+.offline-card .small{
+  font-size:12px;
+  opacity:0.5;
+}
+
+.offline-card button{
+  margin-top:15px;
+  padding:10px 20px;
+  border-radius:10px;
+  border:1px solid rgba(91,163,245,0.3);
+  background:rgba(91,163,245,0.1);
+  color:#5ba3f5;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.offline-card button:hover{
+  background:rgba(91,163,245,0.2);
+}
+  
 .logo-icon{
   width:70px;
   height:70px;
@@ -245,6 +303,16 @@ body::before{
   <source src="https://stickworld.onrender.com/music/StickWorldHome.MP3" type="audio/mpeg">
 </audio>  
 
+<div id="offlineScreen" style="display:none;">
+  <div class="offline-card">
+    <div class="logo-icon"></div>
+    <h1>NO INTERNET</h1>
+    <p>StickWorld couldn’t connect to the server.</p>
+    <p class="small">Please check your internet connection and try again.</p>
+    <button onclick="location.reload()">RETRY</button>
+  </div>
+</div>
+  
 <div class="header">
     <a class="fanart-btn" href="https://stickworld.onrender.com/fanart.html">← FANART</a>
     <a class="updatelogs-btn" href="https://stickworld.onrender.com/updatelogs.html">← UPDATELOGS</a>
@@ -359,6 +427,19 @@ const previewPlayers = [
   {x:370, color:'#e67e22', speed:1.0},
 ];
 
+function checkInternet() {
+  fetch("https://stickworld.onrender.com/", { mode: "no-cors" })
+    .then(() => {
+      document.getElementById("offlineScreen").style.display = "none";
+    })
+    .catch(() => {
+      document.getElementById("offlineScreen").style.display = "flex";
+    });
+}
+
+checkInternet();
+setInterval(checkInternet, 5000);
+  
 function drawPreviewStick(x, t, color) {
   const y = ph - 18;
   const ls = Math.sin(t*Math.PI*2)*12;
