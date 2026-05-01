@@ -420,7 +420,7 @@ setupBtn('btnLeft','left'); setupBtn('btnRight','right'); setupBtn('btnJump','ju
 //  GAME STATE
 // ══════════════════════════════════════════════
 let players={}, camX=0;
-socket.emit('join',{username});
+socket.emit('join', { username: username, page: 'game' });
 socket.on('players', p => {
   players=p;
   for(let id in p){
