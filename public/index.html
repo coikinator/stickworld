@@ -396,7 +396,7 @@ function animPreview() {
 }
 animPreview();
 
-  document.addEventListener("keydown", function(e) {
+document.addEventListener("keydown", function(e) {
   if (
     e.ctrlKey && (
       e.key === "u" ||
@@ -406,17 +406,16 @@ animPreview();
     )
   ) {
     e.preventDefault();
-    alert("Nicht erlaubt!");
+    return false;
+  }
+
+  if (e.key === "F12") {
+    e.preventDefault();
+    return false;
   }
 });
 
 document.addEventListener("contextmenu", e => e.preventDefault());
-
-document.addEventListener("keydown", function(e) {
-  if (e.key === "F12") {
-    e.preventDefault();
-  }
-});
   
 </script>
 </body>
