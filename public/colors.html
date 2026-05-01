@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>StickWorld — Color Meaning</title>
+<link rel="icon" type="image/png" href="https://stickworld.neocities.org/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --sky1:#1a2a4a;--sky2:#0d1520;
+  --border:rgba(100,180,255,0.18);
+  --accent:#5ba3f5;--accent2:#ff6b6b;
+  --text:#c8daf8;--muted:#4a6a9a;
+}
+html,body{height:100%;overflow-x:hidden;}
+body{
+  font-family:'Rajdhani',sans-serif;
+  background:linear-gradient(160deg,var(--sky1) 0%,var(--sky2) 100%);
+  color:var(--text);
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;
+  padding:40px 16px 60px;
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:
+    radial-gradient(1px 1px at 10% 15%,rgba(255,255,255,.6) 0%,transparent 100%),
+    radial-gradient(1px 1px at 30% 40%,rgba(255,255,255,.4) 0%,transparent 100%),
+    radial-gradient(1.5px 1.5px at 55% 20%,rgba(255,255,255,.5) 0%,transparent 100%),
+    radial-gradient(1px 1px at 75% 60%,rgba(255,255,255,.3) 0%,transparent 100%),
+    radial-gradient(1px 1px at 90% 10%,rgba(255,255,255,.5) 0%,transparent 100%),
+    radial-gradient(1px 1px at 20% 80%,rgba(255,255,255,.3) 0%,transparent 100%),
+    radial-gradient(1px 1px at 65% 85%,rgba(255,255,255,.4) 0%,transparent 100%),
+    radial-gradient(1px 1px at 42% 70%,rgba(255,255,255,.3) 0%,transparent 100%);
+  pointer-events:none;z-index:0;
+}
+
+.back-btn{
+  position:fixed;left:20px;top:30px;
+  background:rgba(91,163,245,.1);
+  border:1px solid rgba(91,163,245,.2);
+  border-radius:10px;
+  color:var(--accent);
+  font-family:'Rajdhani',sans-serif;
+  font-size:13px;letter-spacing:1px;
+  padding:7px 14px;cursor:pointer;
+  text-decoration:none;display:inline-flex;align-items:center;gap:6px;
+  transition:all .2s;z-index:10;
+}
+.back-btn:hover{background:rgba(91,163,245,.2);}
+
+.container{
+  position:relative;z-index:1;
+  width:min(560px,96vw);
+  display:flex;flex-direction:column;align-items:center;
+}
+
+.logo-wrap{text-align:center;margin-bottom:10px;}
+.logo-icon{
+  width:56px;height:56px;
+  margin:0 auto 12px;
+  background:url("https://stickworld.neocities.org/favicon.png") center/cover no-repeat;
+  border-radius:14px;
+  box-shadow:0 0 25px rgba(91,163,245,0.6),0 0 60px rgba(91,163,245,0.2);
+}
+.logo{
+  font-family:'Orbitron',monospace;
+  font-size:clamp(26px,7vw,42px);
+  font-weight:800;
+  letter-spacing:6px;
+  color:#fff;
+  text-shadow:0 0 40px rgba(91,163,245,.6),0 0 80px rgba(91,163,245,.2);
+  line-height:1;
+}
+.logo span{color:var(--accent2);}
+.tagline{
+  font-size:clamp(10px,2.5vw,12px);
+  color:var(--muted);
+  letter-spacing:3px;
+  margin-top:6px;
+  text-transform:uppercase;
+}
+
+.page-title{
+  font-family:'Orbitron',monospace;
+  font-size:clamp(18px,5vw,26px);
+  font-weight:800;
+  letter-spacing:5px;
+  color:#fff;
+  text-shadow:0 0 30px rgba(91,163,245,.5);
+  margin:28px 0 6px;
+  text-align:center;
+}
+.page-sub{
+  font-size:13px;color:var(--muted);
+  letter-spacing:2px;text-align:center;
+  margin-bottom:24px;text-transform:uppercase;
+}
+
+.info-box{
+  width:100%;
+  background:linear-gradient(135deg,rgba(30,50,90,.7),rgba(15,28,60,.8));
+  border:1px solid rgba(91,163,245,.15);
+  border-radius:16px;
+  padding:18px 22px;
+  margin-bottom:20px;
+  box-shadow:0 4px 20px rgba(0,0,0,.3);
+}
+.info-box-title{
+  font-family:'Orbitron',monospace;
+  font-size:11px;letter-spacing:2.5px;color:var(--accent);
+  margin-bottom:8px;text-transform:uppercase;
+}
+.info-box-text{
+  font-size:13px;color:#8898b8;line-height:1.7;
+}
+.info-box-text b{color:var(--text);}
+
+.colors-list{
+  display:flex;flex-direction:column;gap:12px;
+  width:100%;
+}
+
+.color-row{
+  width:100%;
+  background:linear-gradient(135deg,rgba(30,50,90,.85),rgba(15,28,60,.9));
+  border:1px solid var(--border);
+  border-radius:16px;
+  overflow:hidden;
+  box-shadow:0 6px 28px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.06);
+  backdrop-filter:blur(20px);
+  display:flex;align-items:stretch;
+  transition:transform .2s, box-shadow .2s, border-color .2s;
+}
+.color-row:hover{transform:translateY(-2px);}
+
+.color-stripe{
+  width:76px;
+  flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+  overflow:hidden;
+}
+.color-stripe::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent 60%,rgba(0,0,0,.2) 100%);
+  pointer-events:none;
+}
+.color-stripe canvas{position:relative;z-index:1;}
+
+.color-body{
+  flex:1;
+  padding:15px 18px;
+  display:flex;flex-direction:column;justify-content:center;
+}
+.color-top{
+  display:flex;align-items:center;gap:9px;margin-bottom:5px;
+}
+.color-dot{
+  width:11px;height:11px;border-radius:50%;flex-shrink:0;
+}
+.color-name{
+  font-family:'Orbitron',monospace;
+  font-size:11px;font-weight:700;
+  letter-spacing:1.5px;color:#fff;
+  text-transform:uppercase;
+}
+.color-badge{
+  margin-left:auto;
+  font-size:9px;letter-spacing:1.5px;font-family:'Orbitron',monospace;
+  padding:2px 8px;border-radius:4px;
+  text-transform:uppercase;flex-shrink:0;
+}
+.badge-standard{background:rgba(91,163,245,.15);color:var(--accent);border:1px solid rgba(91,163,245,.25);}
+.badge-legendary{
+  background:rgba(255,80,80,.12);color:#ff8080;border:1px solid rgba(255,80,80,.3);
+  animation:legendaryPulse 2s infinite;
+}
+@keyframes legendaryPulse{
+  0%,100%{box-shadow:0 0 5px rgba(255,80,80,.3);}
+  50%{box-shadow:0 0 14px rgba(255,80,80,.8);}
+}
+
+.color-meaning{
+  font-size:15px;
+  color:var(--text);
+  font-weight:600;
+  letter-spacing:.5px;
+  margin-bottom:3px;
+}
+.color-desc{
+  font-size:12px;
+  color:var(--muted);
+  letter-spacing:.3px;
+  line-height:1.5;
+}
+
+.section-label{
+  width:100%;
+  font-family:'Orbitron',monospace;
+  font-size:10px;letter-spacing:3px;
+  color:var(--muted);text-transform:uppercase;
+  padding:8px 0 10px;
+  margin-top:8px;
+  display:flex;align-items:center;gap:12px;
+}
+.section-label::before,.section-label::after{content:'';flex:1;height:1px;background:rgba(100,180,255,.1);}
+
+.footer{margin-top:30px;font-size:11px;color:var(--muted);text-align:center;letter-spacing:1px;}
+</style>
+</head>
+<body>
+
+<a class="back-btn" href="https://stickworld.onrender.com/updatelogs.html">← BACK</a>
+
+<div class="container">
+  <div class="logo-wrap">
+    <div class="logo-icon"></div>
+    <div class="logo">STICK<span>WORLD</span></div>
+    <div class="tagline">Multiplayer Stickbuddy Universe</div>
+  </div>
+
+  <div class="page-title">COLOR MEANING</div>
+  <div class="page-sub">What update? What color?</div>
+
+  <div class="info-box">
+    <div class="info-box-title">ℹ️ How it works</div>
+    <div class="info-box-text">
+      Every update in StickWorld has a <b>color tag</b> that tells you what was changed or added.
+      Check the color of an update entry to instantly know what kind of change it is!
+    </div>
+  </div>
+
+  <div class="section-label">Standard</div>
+  <div class="colors-list" id="standardList"></div>
+
+  <div class="section-label">Legendary</div>
+  <div class="colors-list" id="legendaryList"></div>
+
+  <div class="footer">© coikinator / Sandro Evrard — All rights reserved</div>
+</div>
+
+<script>
+const colors = [
+  { name:"Blue",      hex:"#5ba3f5", meaning:"New Page",        desc:"A brand new page was added to StickWorld.",            rarity:"standard" },
+  { name:"Cyan",      hex:"#00e5ff", meaning:"New Music",       desc:"New background music or sound effects were added.",              rarity:"standard" },
+  { name:"Yellow",    hex:"#f1c40f", meaning:"Emojis",          desc:"New emojis were introduced in the game.",         rarity:"standard" },
+  { name:"Green",     hex:"#2ecc71", meaning:"New Function",    desc:"A new feature or game mechanic was implemented.",                rarity:"standard" },
+  { name:"Black",    hex:"#000000", meaning:"???",             desc:"Something mysterious was added. Nobody really knows yet.",       rarity:"standard" },
+  { name:"Orange",    hex:"#e67e22", meaning:"Error/Bug(FIXED)",             desc:"A bug/error was successfully fixed",       rarity:"standard" },
+  { name:"Red",       hex:"#ff4444", meaning:"Error/Bug", desc:"A bug was found, or a known error was found. (not fixed)",       rarity:"standard" },
+  { name:"Legendary", hex:"rainbow", meaning:"Full Update",     desc:"A massive game-changing update that is complete! like a full version", rarity:"legendary" },
+];
+
+function createRow(c) {
+  const row = document.createElement("div");
+  row.className = "color-row";
+
+  // Stripe
+  const stripe = document.createElement("div");
+  stripe.className = "color-stripe";
+  if (c.hex === "rainbow") {
+    stripe.style.background = "linear-gradient(180deg,#ff2222 0%,#ff8800 20%,#ffee00 40%,#22cc66 60%,#00aaff 80%,#aa00ff 100%)";
+  } else {
+    stripe.style.background = c.hex + "28";
+    stripe.style.borderRight = `3px solid ${c.hex}`;
+  }
+
+  const cvs = document.createElement("canvas");
+  cvs.width = 50; cvs.height = 80;
+  stripe.appendChild(cvs);
+
+  let t = Math.random() * 10;
+  const ctx = cvs.getContext("2d");
+  const solidColor = c.hex === "rainbow" ? null : c.hex;
+
+  function drawStick() {
+    ctx.clearRect(0, 0, 50, 80);
+    t += 0.06;
+    const x = 25, y = 74;
+    const ls = Math.sin(t * Math.PI * 2) * 9;
+    const as = Math.sin(t * Math.PI * 2) * 7;
+    ctx.strokeStyle = solidColor || `hsl(${(t * 55) % 360},100%,65%)`;
+    ctx.lineWidth = 2.2;
+    ctx.lineCap = "round";
+    ctx.beginPath(); ctx.arc(x, y-34, 7, 0, Math.PI*2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x,y-27); ctx.lineTo(x,y-12); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x,y-22); ctx.lineTo(x-9-as,y-15); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x,y-22); ctx.lineTo(x+9+as,y-15); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x,y-12); ctx.lineTo(x-5-ls*0.4,y-4); ctx.lineTo(x-6-ls*0.6,y+6); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x,y-12); ctx.lineTo(x+5+ls*0.4,y-4); ctx.lineTo(x+6+ls*0.6,y+6); ctx.stroke();
+    requestAnimationFrame(drawStick);
+  }
+  drawStick();
+
+  const body = document.createElement("div");
+  body.className = "color-body";
+  const dotStyle = c.hex === "rainbow"
+    ? "background:linear-gradient(90deg,#ff4444,#ffee00,#2ecc71,#00e5ff,#cc44ff);width:13px;height:13px;"
+    : `background:${c.hex};box-shadow:0 0 8px ${c.hex}99;`;
+
+  const badgeLabel = c.rarity === "legendary" ? "⭐ LEGENDARY" : "STANDARD";
+  body.innerHTML = `
+    <div class="color-top">
+      <div class="color-dot" style="${dotStyle}"></div>
+      <div class="color-name">${c.name}</div>
+      <div class="color-badge badge-${c.rarity}">${badgeLabel}</div>
+    </div>
+    <div class="color-meaning">${c.meaning}</div>
+    <div class="color-desc">${c.desc}</div>
+  `;
+
+  const glowColor = c.hex === "rainbow" ? "rgba(255,200,80,.4)" : c.hex + "66";
+  const borderColor = c.hex === "rainbow" ? "rgba(255,200,80,.6)" : c.hex + "99";
+  row.addEventListener("mouseenter", () => {
+    row.style.borderColor = borderColor;
+    row.style.boxShadow = `0 10px 40px rgba(0,0,0,.5), 0 0 18px ${glowColor}`;
+  });
+  row.addEventListener("mouseleave", () => {
+    row.style.borderColor = "";
+    row.style.boxShadow = "";
+  });
+
+  row.appendChild(stripe);
+  row.appendChild(body);
+  return row;
+}
+
+colors.forEach(c => {
+  const target = c.rarity === "legendary"
+    ? document.getElementById("legendaryList")
+    : document.getElementById("standardList");
+  target.appendChild(createRow(c));
+});
+
+document.addEventListener("contextmenu", e => e.preventDefault());
+document.addEventListener("keydown", function(e) {
+  if (e.ctrlKey && (e.key==="u"||e.key==="s"||e.key==="U"||e.key==="S")) { e.preventDefault(); return false; }
+  if (e.key==="F12") { e.preventDefault(); return false; }
+});
+</script>
+</body>
+</html>
