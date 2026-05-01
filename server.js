@@ -270,6 +270,8 @@ socket.on('disconnect', async () => {
  delete players[socket.id];
  io.emit('players', players);
 });
+  });
+
 
 // ── GAME LOOP 60fps
 setInterval(() => {
