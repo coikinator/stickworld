@@ -199,23 +199,29 @@ const JUMP_FORCE = -15;
 
 io.on('connection', (socket) => {
 
-  socket.on('join', (data) => {
-    activeSessions[data.username] = socket.id;
+socket.on('join', async (data) => {
 
-    players[socket.id] = {
-      id: socket.id,
-      username: data.username,
-      x: 200 + Math.random() * 400,
-      y: GROUND,
-      vx: 0, vy: 0,
-      onGround: true,
-      anim: 0, facing: 1, moving: false,
-      coins: 0,
-      lastReward: Date.now(),
-      timeLeft: 600000
-    };
-    io.emit('players', players);
-  });
+const user = await User.findOne({ username: data.username });
+
+activeSessions[data.username] = socket.id;
+
+players[socket.id] = {
+  id: socket.id,
+  username: data.username,
+  x: 200 + Math.random() * 400,
+  y: GROUND,
+  vx:0, vy:0,
+  onGround:true,
+  anim:0,
+  facing:1,
+  moving:false,
+  coins: user?.coins || 0,
+  lastReward: Date.now(),
+  timeLeft: 600000
+};
+
+io.emit('players', players);
+});
 
   socket.on('input', (data) => {
     const p = players[socket.id];
