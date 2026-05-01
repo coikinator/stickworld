@@ -303,6 +303,8 @@ setInterval(async () => {
   for (let id in players) {
     const p = players[id];
 
+    if (!p?.username) continue;
+
     await User.updateOne(
       { username: p.username },
       {
