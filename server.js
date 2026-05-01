@@ -219,7 +219,7 @@ players[socket.id] = {
   coins: user?.coins || 0,
   lastReward: user?.lastReward ?? Date.now(),
   timeLeft: 600000,
-  inGame: true 
+  inGame: data.page === 'game'
 };
 
 io.emit('players', players);
