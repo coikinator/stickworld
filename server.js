@@ -217,7 +217,7 @@ players[socket.id] = {
   facing:1,
   moving:false,
   coins: user?.coins || 0,
-  lastReward: p.lastReward
+  lastReward: user?.lastReward ?? Date.now(),
   timeLeft: Math.max(0, 600000 - (Date.now() - (user?.lastReward ?? Date.now()))),
   inGame: data.page === 'game'
 };
