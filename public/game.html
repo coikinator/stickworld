@@ -237,7 +237,18 @@ background:url('https://your-placeholder-url.com/skin.png') center/cover;
   </div>
 </div>
 
-<!-- Emoji Panel -->  
+<!-- Emoji Panel -->
+<div id="emojiPanel">
+  <div class="emoji-panel-header">
+    <span>EMOJIS</span>
+    <button class="emoji-close-btn" onclick="toggleEmojiPanel()">✕</button>
+  </div>
+  <div class="emoji-grid" id="emojiGrid">
+    <div class="emoji-loading">Loading...</div>
+  </div>
+</div>
+
+
 <div id="controls">
   <div class="ctrl-top"><div class="btn" id="btnJump">⬆️</div></div>
   <div class="ctrl-bot">
