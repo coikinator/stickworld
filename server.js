@@ -253,14 +253,22 @@ socket.on('chat', (data) => {
   }, 0);
 });
 
-  socket.on('disconnect', () => {
-    const p = players[socket.id];
-    if (p && activeSessions[p.username] === socket.id) {
-      delete activeSessions[p.username];
-    }
-    delete players[socket.id];
-    io.emit('players', players);
-  });
+socket.on('disconnect', async () => {
+ const p = players[socket.id];
+
+ if (p) {
+   await User.updateOne(
+     { username: p.username },
+     { $set: { coins: p.coins } }
+   );
+ }
+
+ if (p && activeSessions[p.username] === socket.id) {
+   delete activeSessions[p.username];
+ }
+
+ delete players[socket.id];
+ io.emit('players', players);
 });
 
 // ── GAME LOOP 60fps
