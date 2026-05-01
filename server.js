@@ -217,7 +217,7 @@ players[socket.id] = {
   facing:1,
   moving:false,
   coins: user?.coins || 0,
-  lastReward: user?.lastReward || Date.now(),
+  lastReward: user?.lastReward ?? Date.now(),
   timeLeft: 600000
 };
 
@@ -313,7 +313,7 @@ setInterval(async () => {
       }
     );
   }
-}, 10000);
+}, 5000);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log('StickWorld on port ' + PORT));
