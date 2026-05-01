@@ -58,7 +58,13 @@ body::before{
 .timeline::before{content:'';position:absolute;left:calc(20px + 18px);top:0;bottom:0;width:2px;background:linear-gradient(180deg,rgba(91,163,245,.4),rgba(91,163,245,.05));}
 .log-entry{display:flex;gap:18px;margin-bottom:28px;animation:fadeUp .4s ease both;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
-.log-dot{flex-shrink:0;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;border:2px solid;position:relative;z-index:2;margin-top:4px;}
+.log-dot{
+  flex-shrink:0;width:38px;height:38px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;border:2px solid;position:relative;z-index:2;margin-top:4px;
+  overflow:hidden;
+}
+.log-dot img{width:22px;height:22px;object-fit:contain;}
 .log-card{flex:1;background:linear-gradient(135deg,rgba(30,50,90,.85),rgba(15,28,60,.9));border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:0 4px 24px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.05);backdrop-filter:blur(12px);transition:transform .2s,box-shadow .2s;}
 .log-card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.4);}
 .log-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;}
@@ -116,22 +122,53 @@ body::before{
 <div class="footer">© coikinator / Sandro Evrard — All rights reserved</div>
 
 <script>
-// ── Each file: https://stickworld.neocities.org/updates/1.json
-// Format of each JSON file:
-// {
-//   "UpdateName": "V.1",
-//   "Description": "Added update logs page.",
-//   "Date": "30.04.2026",
-//   "Color": "Green"
-// }
-
-const COLOR_ICONS = {
+// Fallback emoji icons if no PNG is found or color not in colors.json
+const FALLBACK_ICONS = {
   green:'✅', blue:'🔵', red:'🔴', yellow:'⭐',
   purple:'💜', orange:'🟠', pink:'🩷', cyan:'🟢', white:'⚪'
 };
 
+const COLORS_BASE_URL = 'https://stickworld.neocities.org/updates/colors/';
+const COLORS_JSON_URL = 'https://stickworld.neocities.org/updates/colors.json';
+
 function esc(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/**
+ * Fetches colors.json and returns a Set of available color names (original casing).
+ * Example colors.json: { "colors": ["Green", "Yellow", "Red"] }
+ * or just an array: ["Green", "Yellow"]
+ */
+async function loadAvailableColors() {
+  try {
+    const res = await fetch(COLORS_JSON_URL, { cache: 'no-cache' });
+    if (!res.ok) return new Set();
+    const data = await res.json();
+    // Support both array and object with a "colors" key
+    const arr = Array.isArray(data) ? data : (data.colors || Object.keys(data));
+    // Store original casing for the URL, lowercase for lookup
+    const map = new Map();
+    arr.forEach(c => map.set(c.toLowerCase(), c));
+    return map;
+  } catch(e) {
+    console.warn('Could not load colors.json:', e);
+    return new Map();
+  }
+}
+
+/**
+ * Returns the icon HTML for a log-dot.
+ * If the color exists in colors.json, uses an <img> pointing to the PNG.
+ * Otherwise falls back to an emoji.
+ */
+function buildDotIcon(colorKey, colorMap) {
+  const originalCasing = colorMap.get(colorKey); // e.g. "Green"
+  if (originalCasing) {
+    const imgUrl = COLORS_BASE_URL + encodeURIComponent(originalCasing) + '.png';
+    return `<img src="${imgUrl}" alt="${esc(originalCasing)}" onerror="this.replaceWith(document.createTextNode('${FALLBACK_ICONS[colorKey] || '📋'}'))">`;
+  }
+  return FALLBACK_ICONS[colorKey] || '📋';
 }
 
 async function loadLogs() {
@@ -140,18 +177,29 @@ async function loadLogs() {
   const errorDiv = document.getElementById('errorWrap');
   const errorTxt = document.getElementById('errorText');
 
+  // Load colors.json and update logs in parallel
   let logs = [];
+  let colorMap = new Map();
 
   try {
-    const res = await fetch('/api/updates', { cache: 'no-cache' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const raw = await res.json();
-    // Normalize keys (case-insensitive)
-    logs = raw.map(data => {
-      const norm = {};
+    // Load colors.json while also fetching update JSONs (1.json, 2.json, ...)
+    const colorsPromise = loadAvailableColors();
+
+    // Fetch /updates/1.json, /updates/2.json, ... until 404
+    const BASE = 'https://stickworld.neocities.org/updates/';
+    let i = 1;
+    while (true) {
+      const res = await fetch(BASE + i + '.json', { cache: 'no-cache' });
+      if (!res.ok) break; // 404 or other error = no more files
+      const data = await res.json();
+      const norm = { _num: i };
       Object.keys(data).forEach(k => norm[k.toLowerCase()] = data[k]);
-      return norm;
-    });
+      logs.push(norm);
+      i++;
+    }
+
+    colorMap = await colorsPromise;
+
   } catch(e) {
     loading.style.display = 'none';
     errorTxt.innerText = 'Could not load updates: ' + e.message;
@@ -168,18 +216,17 @@ async function loadLogs() {
   }
 
   document.addEventListener("click", () => {
-  const music = document.getElementById("bgMusic");
-  if (music) {
-   // music.volume = 0.5;
-    music.play().catch(() => {});
-  }
-}, { once: true });
+    const music = document.getElementById("bgMusic");
+    if (music) {
+      music.play().catch(() => {});
+    }
+  }, { once: true });
 
   // Newest first
   [...logs].reverse().forEach((log, idx) => {
     const colorKey = (log.color || 'blue').toLowerCase().trim();
     const cc       = 'color-' + colorKey;
-    const icon     = COLOR_ICONS[colorKey] || '📋';
+    const dotIcon  = buildDotIcon(colorKey, colorMap);
     const name     = log.updatename || log.name || ('Update #' + log._num);
     const desc     = log.description || log.desc || '';
     const date     = log.date || '';
@@ -188,7 +235,7 @@ async function loadLogs() {
     entry.className = 'log-entry ' + cc;
     entry.style.animationDelay = (idx * 0.07) + 's';
     entry.innerHTML =
-      '<div class="log-dot">' + icon + '</div>' +
+      '<div class="log-dot">' + dotIcon + '</div>' +
       '<div class="log-card">' +
         '<div class="log-top">' +
           '<div class="log-name">' + esc(name) + '</div>' +
