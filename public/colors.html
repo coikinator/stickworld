@@ -213,6 +213,10 @@ body::before{
 </head>
 <body>
 
+<audio id="bgMusic" autoplay>
+  <source src="https://stickworld.onrender.com/music/ColorMeaningMusic.mp3" type="audio/mpeg">
+</audio>
+  
 <a class="back-btn" href="https://stickworld.onrender.com/updatelogs.html">← BACK</a>
 
 <div class="container">
@@ -335,6 +339,14 @@ colors.forEach(c => {
   target.appendChild(createRow(c));
 });
 
+document.addEventListener("click", () => {
+  const music = document.getElementById("bgMusic");
+  if (music) {
+  //  music.volume = 0.5; // optional
+    music.play().catch(() => {});
+  }
+}, { once: true });  
+  
 document.addEventListener("contextmenu", e => e.preventDefault());
 document.addEventListener("keydown", function(e) {
   if (e.ctrlKey && (e.key==="u"||e.key==="s"||e.key==="U"||e.key==="S")) { e.preventDefault(); return false; }
