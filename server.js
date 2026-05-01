@@ -255,26 +255,27 @@ socket.on('chat', (data) => {
 });
 
 socket.on('disconnect', async () => {
- const p = players[socket.id];
+  const p = players[socket.id];
 
- if (p) {
-   await User.updateOne(
-     { username: p.username },
-$set: {
-  coins: p.coins,
-  lastReward: p.lastReward
-} }
-   );
- }
+  if (p) {
+    await User.updateOne(
+      { username: p.username },
+      { $set: {
+        coins: p.coins,
+        lastReward: p.lastReward
+      }}
+    );
+  }
 
- if (p && activeSessions[p.username] === socket.id) {
-   delete activeSessions[p.username];
- }
+  if (p && activeSessions[p.username] === socket.id) {
+    delete activeSessions[p.username];
+  }
 
- delete players[socket.id];
- io.emit('players', players);
+  delete players[socket.id];
+  io.emit('players', players);
 });
-  });
+
+}); // <-- schließt io.on('connection')
 
 
 // ── GAME LOOP 60fps
@@ -302,16 +303,16 @@ setInterval(() => {
 setInterval(async () => {
   for (let id in players) {
     const p = players[id];
-
     if (!p?.username) continue;
-
-await User.updateOne(
-  { username: p.username },
-  { $set: {    // ← { vor $set ergänzen
-    coins: p.coins,
-    lastReward: p.lastReward
-  } }
-);
+    await User.updateOne(
+      { username: p.username },
+      { $set: {
+        coins: p.coins,
+        lastReward: p.lastReward
+      }}
+    );
+  }
+}, 5000); // <-- dieser schließende Block fehlte komplett!
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log('StickWorld on port ' + PORT));
