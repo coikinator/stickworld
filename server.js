@@ -200,6 +200,13 @@ const JUMP_FORCE = -15;
 
 io.on('connection', (socket) => {
 
+socket.on('pauseTimer', () => {
+  const p = players[socket.id];
+  if (p) {
+    p.inGame = false; // Timer stoppt sofort
+  }
+});
+
 socket.on('join', async (data) => {
 
 const user = await User.findOne({ username: data.username });
