@@ -11,6 +11,38 @@
 body{overflow:hidden;font-family:'Rajdhani',sans-serif;background:#87ceeb;touch-action:none;user-select:none;}
 canvas{display:block;}
 
+#skinMenu{
+position:absolute;
+top:70px;
+right:10px;
+width:220px;
+background:rgba(255,255,255,.75);
+backdrop-filter:blur(14px);
+padding:12px;
+border-radius:14px;
+display:none;
+z-index:99;
+box-shadow:0 5px 20px rgba(0,0,0,.15);
+}
+.skin-color{
+width:32px;
+height:32px;
+border-radius:50%;
+cursor:pointer;
+border:2px solid #fff;
+display:inline-block;
+margin:4px;
+}
+#skinPreview{
+width:60px;
+height:60px;
+border-radius:50%;
+display:block;
+margin:auto;
+margin-bottom:10px;
+background:url('https://your-placeholder-url.com/skin.png') center/cover;
+}
+  
 #ui{
   position:absolute;top:10px;left:10px;right:10px;
   display:flex;justify-content:space-between;align-items:center;
@@ -161,16 +193,48 @@ canvas{display:block;}
 </div>
 
 <!-- Emoji Panel -->
-<div id="emojiPanel">
+<!-- SKIN PANEL -->
+<div id="skinPanel">
   <div class="emoji-panel-header">
-    <span>EMOJIS</span>
-    <button class="emoji-close-btn" onclick="toggleEmojiPanel()">✕</button>
+    <span>SKINS</span>
+    <button class="emoji-close-btn" onclick="toggleSkinPanel()">✕</button>
   </div>
-  <div class="emoji-grid" id="emojiGrid">
-    <div class="emoji-loading">Loading...</div>
+
+  <div class="emoji-grid">
+
+    <div class="emoji-item" onclick="setMyColor('#2980b9')">
+      <div style="width:24px;height:24px;border-radius:50%;background:#2980b9;"></div>
+    </div>
+
+    <div class="emoji-item" onclick="setMyColor('#e74c3c')">
+      <div style="width:24px;height:24px;border-radius:50%;background:#e74c3c;"></div>
+    </div>
+
+    <div class="emoji-item" onclick="setMyColor('#27ae60')">
+      <div style="width:24px;height:24px;border-radius:50%;background:#27ae60;"></div>
+    </div>
+
+    <div class="emoji-item" onclick="setMyColor('#8e44ad')">
+      <div style="width:24px;height:24px;border-radius:50%;background:#8e44ad;"></div>
+    </div>
+
+    <div class="emoji-item" onclick="setMyColor('#f39c12')">
+      <div style="width:24px;height:24px;border-radius:50%;background:#f39c12;"></div>
+    </div>
+
+    <div class="emoji-item" onclick="setMyColor('#16a085')">
+      <div style="width:24px;height:24px;border-radius:50%;background:#16a085;"></div>
+    </div>
+
+    <!-- PLACEHOLDER IMAGE -->
+    <div class="emoji-item" onclick="setMySkin('https://YOUR-URL.com/skin.png')">
+      <img src="https://YOUR-URL.com/skin.png">
+    </div>
+
   </div>
 </div>
 
+  
 <div id="controls">
   <div class="ctrl-top"><div class="btn" id="btnJump">⬆️</div></div>
   <div class="ctrl-bot">
