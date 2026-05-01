@@ -68,9 +68,13 @@ const User = mongoose.model('User', UserSchema);
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
-app.get('/proxy/*', async (req, res) => {
+app.get('/proxy', async (req, res) => {
   try {
-    const url = req.params[0];
+    const url = req.query.url;
+
+    if (!url) {
+      return res.status(400).send('Missing url');
+    }
 
     const r = await fetch(url, {
       headers: {
@@ -78,7 +82,10 @@ app.get('/proxy/*', async (req, res) => {
       }
     });
 
-    const contentType = r.headers.get('content-type') || 'text/plain';
+    const contentType =
+      r.headers.get('content-type') ||
+      'text/plain';
+
     const text = await r.text();
 
     res.set('Access-Control-Allow-Origin', '*');
@@ -86,7 +93,7 @@ app.get('/proxy/*', async (req, res) => {
     res.send(text);
 
   } catch (err) {
-    console.error('Proxy Error:', err);
+    console.error(err);
     res.status(500).send('Proxy failed');
   }
 });
