@@ -62,7 +62,8 @@ mongoose.connect(MONGO_URI);
 
 const UserSchema = new mongoose.Schema({
   username: { type: String, unique: true },
-  password: String
+  password: String,
+  coins: { type: Number, default: 0 }
 });
 const User = mongoose.model('User', UserSchema);
 
