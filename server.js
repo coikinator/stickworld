@@ -272,7 +272,7 @@ socket.on('disconnect', async () => {
       { username: p.username },
       { $set: {
         coins: p.coins,
-        lastReward: p.lastReward
+        lastReward: p.inGame ? p.lastReward : Date.now()
       }}
     );
   }
