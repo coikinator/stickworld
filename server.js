@@ -316,6 +316,7 @@ setInterval(async () => {
   for (let id in players) {
     const p = players[id];
     if (!p?.username) continue;
+    if (!p.inGame) continue;  // ← nur speichern wenn im Game
     await User.updateOne(
       { username: p.username },
       { $set: {
@@ -324,7 +325,7 @@ setInterval(async () => {
       }}
     );
   }
-}, 5000); // <-- dieser schließende Block fehlte komplett!
+}, 5000);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log('StickWorld on port ' + PORT));
