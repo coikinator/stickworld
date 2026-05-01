@@ -63,7 +63,8 @@ mongoose.connect(MONGO_URI);
 const UserSchema = new mongoose.Schema({
   username: { type: String, unique: true },
   password: String,
-  coins: { type: Number, default: 0 }
+  coins: { type: Number, default: 0 },
+  lastReward: { type: Number, default: Date.now }
 });
 const User = mongoose.model('User', UserSchema);
 
@@ -216,7 +217,7 @@ players[socket.id] = {
   facing:1,
   moving:false,
   coins: user?.coins || 0,
-  lastReward: Date.now(),
+  lastReward: user?.lastReward || Date.now(),
   timeLeft: 600000
 };
 
@@ -259,7 +260,10 @@ socket.on('disconnect', async () => {
  if (p) {
    await User.updateOne(
      { username: p.username },
-     { $set: { coins: p.coins } }
+$set: {
+  coins: p.coins,
+  lastReward: p.lastReward
+} }
    );
  }
 
@@ -294,6 +298,22 @@ setInterval(() => {
   }
   io.emit('players', players);
 }, 1000 / 60);
+
+setInterval(async () => {
+  for (let id in players) {
+    const p = players[id];
+
+    await User.updateOne(
+      { username: p.username },
+      {
+        $set: {
+          coins: p.coins,
+          lastReward: p.lastReward
+        }
+      }
+    );
+  }
+}, 10000);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log('StickWorld on port ' + PORT));
