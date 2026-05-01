@@ -588,6 +588,10 @@ playerColors[socket.id]=color;
 document.getElementById("skinPanel").style.display="none";
 }
 
+window.addEventListener('beforeunload', () => {
+  socket.emit('pauseTimer');
+});
+  
 function loop(){
   for(let id in players){
     if(players[id].username===username){
