@@ -128,180 +128,122 @@ const FALLBACK_ICONS = {
   purple:'💜', orange:'🟠', pink:'🩷', cyan:'🟢', white:'⚪'
 };
 
-const COLORS_BASE_URL = 'https://stickworld.neocities.org/updates/colors/';
-const COLORS_JSON_URL = 'https://stickworld.neocities.org/updates/colors.json';
+const BASE = '/proxy/https://stickworld.neocities.org/updates/';
+const COLORS_JSON_URL = '/proxy/https://stickworld.neocities.org/updates/colors.json';
 
-function esc(s){
-  return String(s || '')
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;');
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-/* FIX: safer fetch for Neocities */
-async function safeFetchJson(url){
-  const res = await fetch(url + '?t=' + Date.now(), {
-    method:'GET',
-    mode:'cors',
-    cache:'no-store'
-  });
-
-  if(!res.ok) throw new Error('HTTP ' + res.status);
-  return await res.json();
-}
-
-async function loadAvailableColors(){
-  try{
-    const data = await safeFetchJson(COLORS_JSON_URL);
-
-    const arr = Array.isArray(data)
-      ? data
-      : (data.colors || Object.keys(data));
-
+/**
+ * Fetches colors.json and returns a Set of available color names (original casing).
+ * Example colors.json: { "colors": ["Green", "Yellow", "Red"] }
+ * or just an array: ["Green", "Yellow"]
+ */
+async function loadAvailableColors() {
+  try {
+    const res = await fetch(COLORS_JSON_URL, { cache: 'no-cache' });
+    if (!res.ok) return new Set();
+    const data = await res.json();
+    // Support both array and object with a "colors" key
+    const arr = Array.isArray(data) ? data : (data.colors || Object.keys(data));
+    // Store original casing for the URL, lowercase for lookup
     const map = new Map();
-    arr.forEach(c => map.set(String(c).toLowerCase(), c));
+    arr.forEach(c => map.set(c.toLowerCase(), c));
     return map;
-
-  }catch(e){
-    console.warn('colors.json failed', e);
+  } catch(e) {
+    console.warn('Could not load colors.json:', e);
     return new Map();
   }
 }
 
-function buildDotIcon(colorKey,colorMap){
-  const original = colorMap.get(colorKey);
-
-  if(original){
-    const imgUrl =
-      COLORS_BASE_URL +
-      encodeURIComponent(original) +
-      '.png';
-
-    return `<img src="${imgUrl}?t=${Date.now()}"
-      alt="${esc(original)}"
-      crossorigin="anonymous"
-      onerror="this.replaceWith(document.createTextNode('${FALLBACK_ICONS[colorKey] || '📋'}'))">`;
+/**
+ * Returns the icon HTML for a log-dot.
+ * If the color exists in colors.json, uses an <img> pointing to the PNG.
+ * Otherwise falls back to an emoji.
+ */
+function buildDotIcon(colorKey, colorMap) {
+  const originalCasing = colorMap.get(colorKey); // e.g. "Green"
+  if (originalCasing) {
+    const imgUrl = COLORS_BASE_URL + encodeURIComponent(originalCasing) + '.png';
+    return `<img src="${imgUrl}" alt="${esc(originalCasing)}" onerror="this.replaceWith(document.createTextNode('${FALLBACK_ICONS[colorKey] || '📋'}'))">`;
   }
-
   return FALLBACK_ICONS[colorKey] || '📋';
 }
 
-async function loadLogs(){
-
+async function loadLogs() {
   const timeline = document.getElementById('timeline');
   const loading  = document.getElementById('loadingWrap');
   const errorDiv = document.getElementById('errorWrap');
   const errorTxt = document.getElementById('errorText');
 
+  // Load colors.json and update logs in parallel
   let logs = [];
   let colorMap = new Map();
 
-  try{
-
+  try {
+    // Load colors.json while also fetching update JSONs (1.json, 2.json, ...)
     const colorsPromise = loadAvailableColors();
 
+    // Fetch /updates/1.json, /updates/2.json, ... until 404
     const BASE = 'https://stickworld.neocities.org/updates/';
-
     let i = 1;
-
-    while(true){
-
-      try{
-        const data = await safeFetchJson(BASE + i + '.json');
-
-        const norm = { _num:i };
-
-        Object.keys(data).forEach(k=>{
-          norm[k.toLowerCase()] = data[k];
-        });
-
-        logs.push(norm);
-        i++;
-
-      }catch(err){
-        break;
-      }
+    while (true) {
+      const res = await fetch(BASE + i + '.json', { cache: 'no-cache' });
+      if (!res.ok) break; // 404 or other error = no more files
+      const data = await res.json();
+      const norm = { _num: i };
+      Object.keys(data).forEach(k => norm[k.toLowerCase()] = data[k]);
+      logs.push(norm);
+      i++;
     }
 
     colorMap = await colorsPromise;
 
-  }catch(e){
-
+  } catch(e) {
     loading.style.display = 'none';
-    errorTxt.innerText = 'Could not load updates.';
+    errorTxt.innerText = 'Could not load updates: ' + e.message;
     errorDiv.style.display = 'block';
     return;
   }
 
   loading.style.display = 'none';
 
-  if(logs.length === 0){
-    errorTxt.innerText = 'No update logs found.';
+  if (logs.length === 0) {
+    errorTxt.innerText = 'No updates found. Make sure your JSON files are at:\nhttps://stickworld.neocities.org/updates/1.json';
     errorDiv.style.display = 'block';
     return;
   }
 
-  document.addEventListener('click',()=>{
-    const music = document.getElementById('bgMusic');
-    if(music) music.play().catch(()=>{});
-  },{once:true});
+  document.addEventListener("click", () => {
+    const music = document.getElementById("bgMusic");
+    if (music) {
+      music.play().catch(() => {});
+    }
+  }, { once: true });
 
-  [...logs].reverse().forEach((log,idx)=>{
-
-    const colorKey =
-      (log.color || 'blue')
-      .toLowerCase()
-      .trim();
-
-    const name =
-      log.updatename ||
-      log.name ||
-      ('Update #' + log._num);
-
-    const desc =
-      log.description ||
-      log.desc ||
-      '';
-
-    const date = log.date || '';
+  // Newest first
+  [...logs].reverse().forEach((log, idx) => {
+    const colorKey = (log.color || 'blue').toLowerCase().trim();
+    const cc       = 'color-' + colorKey;
+    const dotIcon  = buildDotIcon(colorKey, colorMap);
+    const name     = log.updatename || log.name || ('Update #' + log._num);
+    const desc     = log.description || log.desc || '';
+    const date     = log.date || '';
 
     const entry = document.createElement('div');
-
-    entry.className =
-      'log-entry color-' + colorKey;
-
-    entry.style.animationDelay =
-      (idx * 0.07) + 's';
-
+    entry.className = 'log-entry ' + cc;
+    entry.style.animationDelay = (idx * 0.07) + 's';
     entry.innerHTML =
-      '<div class="log-dot">' +
-        buildDotIcon(colorKey,colorMap) +
-      '</div>' +
-
+      '<div class="log-dot">' + dotIcon + '</div>' +
       '<div class="log-card">' +
-
         '<div class="log-top">' +
-
-          '<div class="log-name">' +
-            esc(name) +
-          '</div>' +
-
-          (date
-            ? '<div class="log-date">📅 ' + esc(date) + '</div>'
-            : '') +
-
+          '<div class="log-name">' + esc(name) + '</div>' +
+          (date ? '<div class="log-date">📅 ' + esc(date) + '</div>' : '') +
         '</div>' +
-
-        (desc
-          ? '<div class="log-desc">' + esc(desc) + '</div>'
-          : '') +
-
-        '<div class="log-num">UPDATE #' +
-          log._num +
-        '</div>' +
-
+        (desc ? '<div class="log-desc">' + esc(desc) + '</div>' : '') +
+        '<div class="log-num">UPDATE #' + log._num + '</div>' +
       '</div>';
-
     timeline.appendChild(entry);
   });
 }
