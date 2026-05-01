@@ -265,7 +265,7 @@ socket.on('disconnect', async () => {
       { username: p.username },
       { $set: {
         coins: p.coins,
-        lastReward: Date.now()
+        lastReward: p.lastReward
       }}
     );
   }
