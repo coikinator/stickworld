@@ -122,53 +122,34 @@ body::before{
 <div class="footer">© coikinator / Sandro Evrard — All rights reserved</div>
 
 <script>
-// Fallback emoji icons if no PNG is found or color not in colors.json
-const FALLBACK_ICONS = {
+const COLOR_ICONS = {
   green:'✅', blue:'🔵', red:'🔴', yellow:'⭐',
   purple:'💜', orange:'🟠', pink:'🩷', cyan:'🟢', white:'⚪'
 };
 
-const BASE = '/proxy?url=https://stickworld.neocities.org/updates/';
-const COLORS_JSON_URL = '/proxy?url=https://stickworld.neocities.org/updates/colors.json';
+const IMAGE_BASE = 'https://stickworld.neocities.org/updates/colors/';
 
 function esc(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return String(s||'')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;');
 }
 
-/**
- * Fetches colors.json and returns a Set of available color names (original casing).
- * Example colors.json: { "colors": ["Green", "Yellow", "Red"] }
- * or just an array: ["Green", "Yellow"]
- */
-async function loadAvailableColors() {
-  try {
-    const res = await fetch(COLORS_JSON_URL, { cache: 'no-cache' });
-    if (!res.ok) return new Set();
-    const data = await res.json();
-    // Support both array and object with a "colors" key
-    const arr = Array.isArray(data) ? data : (data.colors || Object.keys(data));
-    // Store original casing for the URL, lowercase for lookup
-    const map = new Map();
-    arr.forEach(c => map.set(c.toLowerCase(), c));
-    return map;
-  } catch(e) {
-    console.warn('Could not load colors.json:', e);
-    return new Map();
-  }
-}
+/* image if exists, emoji if fail */
+function getColorIcon(colorKey){
+  const fallback = COLOR_ICONS[colorKey] || '📋';
+  const fileName =
+    colorKey.charAt(0).toUpperCase() +
+    colorKey.slice(1).toLowerCase();
 
-/**
- * Returns the icon HTML for a log-dot.
- * If the color exists in colors.json, uses an <img> pointing to the PNG.
- * Otherwise falls back to an emoji.
- */
-function buildDotIcon(colorKey, colorMap) {
-  const originalCasing = colorMap.get(colorKey); // e.g. "Green"
-  if (originalCasing) {
-    const imgUrl = COLORS_BASE_URL + encodeURIComponent(originalCasing) + '.png';
-    return `<img src="${imgUrl}" alt="${esc(originalCasing)}" onerror="this.replaceWith(document.createTextNode('${FALLBACK_ICONS[colorKey] || '📋'}'))">`;
-  }
-  return FALLBACK_ICONS[colorKey] || '📋';
+  return `
+    <img
+      src="${IMAGE_BASE}${fileName}.png"
+      style="width:22px;height:22px;object-fit:contain"
+      onerror="this.outerHTML='${fallback}'"
+      alt="${fileName}">
+  `;
 }
 
 async function loadLogs() {
@@ -177,28 +158,21 @@ async function loadLogs() {
   const errorDiv = document.getElementById('errorWrap');
   const errorTxt = document.getElementById('errorText');
 
-  // Load colors.json and update logs in parallel
   let logs = [];
-  let colorMap = new Map();
 
   try {
-    // Load colors.json while also fetching update JSONs (1.json, 2.json, ...)
-    const colorsPromise = loadAvailableColors();
+    const res = await fetch('/api/updates', { cache:'no-cache' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
 
-    // Fetch /updates/1.json, /updates/2.json, ... until 404
-    const BASE = 'https://stickworld.neocities.org/updates/';
-    let i = 1;
-    while (true) {
-      const res = await fetch(BASE + i + '.json', { cache: 'no-cache' });
-      if (!res.ok) break; // 404 or other error = no more files
-      const data = await res.json();
-      const norm = { _num: i };
-      Object.keys(data).forEach(k => norm[k.toLowerCase()] = data[k]);
-      logs.push(norm);
-      i++;
-    }
+    const raw = await res.json();
 
-    colorMap = await colorsPromise;
+    logs = raw.map(data => {
+      const norm = {};
+      Object.keys(data).forEach(k => {
+        norm[k.toLowerCase()] = data[k];
+      });
+      return norm;
+    });
 
   } catch(e) {
     loading.style.display = 'none';
@@ -209,33 +183,44 @@ async function loadLogs() {
 
   loading.style.display = 'none';
 
-  if (logs.length === 0) {
-    errorTxt.innerText = 'No updates found. Make sure your JSON files are at:\nhttps://stickworld.neocities.org/updates/1.json';
+  if (!logs.length) {
+    errorTxt.innerText = 'No update logs found.';
     errorDiv.style.display = 'block';
     return;
   }
 
   document.addEventListener("click", () => {
     const music = document.getElementById("bgMusic");
-    if (music) {
-      music.play().catch(() => {});
-    }
-  }, { once: true });
+    if (music) music.play().catch(()=>{});
+  }, { once:true });
 
-  // Newest first
   [...logs].reverse().forEach((log, idx) => {
-    const colorKey = (log.color || 'blue').toLowerCase().trim();
-    const cc       = 'color-' + colorKey;
-    const dotIcon  = buildDotIcon(colorKey, colorMap);
-    const name     = log.updatename || log.name || ('Update #' + log._num);
-    const desc     = log.description || log.desc || '';
-    const date     = log.date || '';
+
+    const colorKey =
+      (log.color || 'blue')
+      .toLowerCase()
+      .trim();
+
+    const icon = getColorIcon(colorKey);
+
+    const name =
+      log.updatename ||
+      log.name ||
+      ('Update #' + log._num);
+
+    const desc =
+      log.description ||
+      log.desc ||
+      '';
+
+    const date = log.date || '';
 
     const entry = document.createElement('div');
-    entry.className = 'log-entry ' + cc;
+    entry.className = 'log-entry color-' + colorKey;
     entry.style.animationDelay = (idx * 0.07) + 's';
+
     entry.innerHTML =
-      '<div class="log-dot">' + dotIcon + '</div>' +
+      '<div class="log-dot">' + icon + '</div>' +
       '<div class="log-card">' +
         '<div class="log-top">' +
           '<div class="log-name">' + esc(name) + '</div>' +
@@ -244,6 +229,7 @@ async function loadLogs() {
         (desc ? '<div class="log-desc">' + esc(desc) + '</div>' : '') +
         '<div class="log-num">UPDATE #' + log._num + '</div>' +
       '</div>';
+
     timeline.appendChild(entry);
   });
 }
