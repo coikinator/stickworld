@@ -218,7 +218,8 @@ players[socket.id] = {
   moving:false,
   coins: user?.coins || 0,
   lastReward: user?.lastReward ?? Date.now(),
-  timeLeft: 600000
+  timeLeft: 600000,
+  inGame: true 
 };
 
 io.emit('players', players);
@@ -231,6 +232,8 @@ io.emit('players', players);
     if (data.right) { p.vx += MOVE_SPEED; p.facing =  1; }
     if (data.jump && p.onGround) { p.vy = JUMP_FORCE; p.onGround = false; }
   });
+
+  
 
 socket.on('chat', (data) => {
   const p = players[socket.id];
@@ -293,10 +296,12 @@ setInterval(() => {
     if (p.x > 2000)  { p.x = 2000;  p.vx = 0; }
     if (Math.abs(p.vx) > 0.5) p.anim += 0.18 * Math.abs(p.vx) / MOVE_SPEED;
     else p.anim += 0.04;
-    const timeLeft = 600000 - (now - p.lastReward);
-    p.timeLeft = Math.max(0, timeLeft);
-    if (timeLeft <= 0) { p.coins += 50; p.lastReward = now; }
-  }
+    if (p.inGame) {
+      const timeLeft = 600000 - (now - p.lastReward);
+      p.timeLeft = Math.max(0, timeLeft);
+      if (timeLeft <= 0) { p.coins += 50; p.lastReward = now; }
+    } 
+  }    
   io.emit('players', players);
 }, 1000 / 60);
 
