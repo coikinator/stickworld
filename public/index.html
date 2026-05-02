@@ -497,6 +497,56 @@ if (!navigator.userAgent.includes('StickWorldApp') && !navigator.userAgent.inclu
     document.getElementById('downloadBtnGuest').style.display = 'flex';
 }
 
+  async function checkVersion() {
+    if (!navigator.userAgent.includes('StickWorldApp')) return;
+    
+    const appVersion = window.AndroidApp ? window.AndroidApp.getAppVersion() : null;
+    if (!appVersion) return;
+    
+    const res = await fetch('https://stickworld.neocities.org/version/currentversion.json');
+    const data = await res.json();
+    const current = data.Version;
+    
+    if (appVersion !== current) {
+        showVersionScreen(appVersion, current);
+    }
+}
+
+function showVersionScreen(appV, currentV) {
+    const isOld = appV < currentV;
+    const div = document.createElement('div');
+    div.style.cssText = `
+        position:fixed;inset:0;z-index:999999;
+        background:linear-gradient(160deg,#0d1520,#1a2a4a);
+        display:flex;align-items:center;justify-content:center;
+    `;
+    div.innerHTML = `
+        <div style="width:min(360px,90vw);padding:30px;border-radius:18px;text-align:center;
+            background:rgba(255,255,255,0.06);border:1px solid rgba(100,180,255,0.2);
+            backdrop-filter:blur(20px);color:#c8daf8;font-family:'Rajdhani',sans-serif;">
+            <div style="font-size:48px;margin-bottom:16px;">${isOld ? '⬆️' : '😂'}</div>
+            <h1 style="font-family:'Orbitron',monospace;font-size:18px;color:#ff6b6b;letter-spacing:3px;margin-bottom:12px;">
+                ${isOld ? 'VERSION TOO OLD' : 'TOO NEW (LOL)'}
+            </h1>
+            <p style="font-size:14px;opacity:0.8;margin-bottom:6px;">Your version: <b>${appV}</b></p>
+            <p style="font-size:14px;opacity:0.8;margin-bottom:20px;">Current version: <b>${currentV}</b></p>
+            <p style="font-size:13px;opacity:0.6;margin-bottom:20px;">
+                ${isOld ? 'Your version is too old. Please update!' : 'Your version is too new (lol)'}
+            </p>
+            <a href="https://stickworld.onrender.com/download.html" style="
+                display:block;padding:12px;border-radius:12px;
+                background:linear-gradient(180deg,#2a6adf,#1540a0);
+                color:#d0e8ff;text-decoration:none;
+                font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;">
+                ${isOld ? '⬆ GET NEWER VERSION' : '⬇ GET OLDER VERSION'}
+            </a>
+        </div>
+    `;
+    document.body.appendChild(div);
+}
+
+checkVersion();
+
 function animPreview() {
   pctx.clearRect(0,0,pw,ph);
   // ground line
