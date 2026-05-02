@@ -355,6 +355,7 @@ body::before{
     </div>
     <button class="btn-play" onclick="enterGame()">▶ ENTER WORLD</button>
     <button class="btn-logout" onclick="doLogout()">Logout</button>
+    <button id="closeBtn" class="btn-logout" style="display:none; margin-top:8px;" onclick="closeApp()">✕ Close</button>
   </div>
 
   <!-- Not logged in -->
@@ -495,6 +496,20 @@ function animPreview() {
   requestAnimationFrame(animPreview);
 }
 animPreview();
+
+  if (navigator.userAgent.includes('StickWorldApp') || navigator.userAgent.includes('Electron')) {
+    document.getElementById('closeBtn').style.display = 'block';
+}
+
+function closeApp() {
+    if (navigator.userAgent.includes('StickWorldApp')) {
+        // Android
+        window.Android.closeApp();
+    } else {
+        // Windows
+        window.close();
+    }
+}
 
 document.addEventListener("keydown", function(e) {
   if (
