@@ -65,18 +65,29 @@
   background:rgba(91,163,245,0.2);
 }
 
-  .download-btn {
-  position:absolute; right:20px; bottom:30px;
-  background:rgba(91,163,245,.1);
-  border:1px solid rgba(91,163,245,.2);
-  border-radius:10px;
-  color:var(--accent);
+.download-btn {
+  width:100%;padding:10px;
+  background:rgba(46,204,113,.08);
+  border:1px solid rgba(46,204,113,.2);
+  border-radius:12px;
+  color:#2ecc71;
   font-family:'Rajdhani',sans-serif;
-  font-size:13px; letter-spacing:1px;
-  padding:7px 14px; cursor:pointer;
-  text-decoration:none; display:none;
-  align-items:center; gap:6px;
-  transition:all .2s;
+  font-size:14px;letter-spacing:1px;
+  cursor:pointer;transition:all .2s;
+  text-decoration:none;display:none;
+  align-items:center;justify-content:center;gap:8px;
+  margin-top:8px;
+}
+.download-btn:hover{
+  background:rgba(46,204,113,.18);
+  transform:translateY(-1px);
+}
+.download-btn .arrow{
+  display:inline-block;
+  transition:transform .2s;
+}
+.download-btn:hover .arrow{
+  transform:translateY(3px);
 }
   
 .logo-icon{
@@ -356,6 +367,7 @@ body::before{
     <button class="btn-play" onclick="enterGame()">▶ ENTER WORLD</button>
     <button class="btn-logout" onclick="doLogout()">Logout</button>
     <button id="closeBtn" class="btn-logout" style="display:none; margin-top:8px;" onclick="closeApp()">✕ Close</button>
+    <a id="downloadBtn" class="download-btn" href="https://stickworld.onrender.com/download.html"><span class="arrow">⬇</span> DOWNLOAD APP</a>
   </div>
 
   <!-- Not logged in -->
@@ -364,6 +376,7 @@ body::before{
     <a class="btn-register" href="/register.html">CREATE ACCOUNT</a>
     <a class="btn-login" href="/login.html">Already have an account? Sign in</a>
     <button id="closeBtnGuest" class="btn-logout" style="display:none; margin-top:8px;" onclick="closeApp()">✕ Close</button>
+    <a id="downloadBtn" class="download-btn" href="https://stickworld.onrender.com/download.html"><span class="arrow">⬇</span> DOWNLOAD APP</a>
   </div>
 
   <div class="footer">Free to play · No downloads needed · Just fun</div>
