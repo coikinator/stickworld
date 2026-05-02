@@ -503,7 +503,7 @@ if (!navigator.userAgent.includes('StickWorldApp') && !navigator.userAgent.inclu
     const appVersion = window.AndroidApp ? window.AndroidApp.getAppVersion() : null;
     if (!appVersion) return;
     
-    const res = await fetch('https://stickworld.neocities.org/version/currentversion.json');
+    const res = await fetch('/api/version');
     const data = await res.json();
     const current = data.Version;
     
