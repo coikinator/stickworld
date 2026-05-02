@@ -229,6 +229,10 @@ body::before{
 </head>
 <body>
 
+<audio id="bgMusic" autoplay loop>
+  <source src="https://stickworld.onrender.com/music/StickChase.mp3" type="audio/mpeg">
+</audio>  
+
 <a class="back-btn" href="https://stickworld.onrender.com/">← BACK</a>
 
 <div class="container">
@@ -310,6 +314,11 @@ function selectPlatform(platform) {
   document.getElementById('btn' + platform.charAt(0).toUpperCase() + platform.slice(1)).classList.add('selected');
   selected = platform;
 
+  document.addEventListener("click", () => {
+    const music = document.getElementById("bgMusic");
+    if (music) music.play().catch(()=>{});
+  }, { once:true });
+  
   // update button
   const cfg = DOWNLOADS[platform];
   const dlBtn  = document.getElementById('dlBtn');
