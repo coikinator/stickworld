@@ -363,6 +363,7 @@ body::before{
     <div class="card-title">Join the World</div>
     <a class="btn-register" href="/register.html">CREATE ACCOUNT</a>
     <a class="btn-login" href="/login.html">Already have an account? Sign in</a>
+    <button id="closeBtnGuest" class="btn-logout" style="display:none; margin-top:8px;" onclick="closeApp()">✕ Close</button>
   </div>
 
   <div class="footer">Free to play · No downloads · Just fun</div>
@@ -499,6 +500,7 @@ animPreview();
 
   if (navigator.userAgent.includes('StickWorldApp') || navigator.userAgent.includes('Electron')) {
     document.getElementById('closeBtn').style.display = 'block';
+    document.getElementById('closeBtnGuest').style.display = 'block';
 }
 
 function closeApp() {
