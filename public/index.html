@@ -498,7 +498,7 @@ if (!navigator.userAgent.includes('StickWorldApp') && !navigator.userAgent.inclu
 }
 
   async function checkVersion() {
-    if (!navigator.userAgent.includes('StickWorldApp')) return;
+    if (!navigator.userAgent.includes('StickWorldApp') && !navigator.userAgent.includes('Electron')) return;
     
     const appVersion = window.AndroidApp ? window.AndroidApp.getAppVersion() : 
                    window.ElectronApp ? window.ElectronApp.getAppVersion() : null;
@@ -541,7 +541,7 @@ div.innerHTML = `
     `;
     document.body.appendChild(div);
 }
-checkVersion();
+setTimeout(checkVersion, 500);
 
 function animPreview() {
   pctx.clearRect(0,0,pw,ph);
