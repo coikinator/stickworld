@@ -503,11 +503,9 @@ animPreview();
 
 function closeApp() {
     if (navigator.userAgent.includes('StickWorldApp')) {
-        // Android
         window.Android.closeApp();
-    } else {
-        // Windows
-        window.close();
+    } else if (navigator.userAgent.includes('Electron')) {
+        window.chrome.webview.postMessage('closeApp');
     }
 }
 
