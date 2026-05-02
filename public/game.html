@@ -440,6 +440,10 @@ document.addEventListener('click',()=>{ const m=document.getElementById('bgMusic
 //  CANVAS
 // ══════════════════════════════════════════════
 const c=document.getElementById('c'), ctx=c.getContext('2d');
+const imgPlatform1 = new Image(); imgPlatform1.src = 'https://stickworld.neocities.org/gameobjects/Platform1.png';
+const imgPlatform2 = new Image(); imgPlatform2.src = 'https://stickworld.neocities.org/gameobjects/Platform2.png';
+const imgTree1 = new Image(); imgTree1.src = 'https://stickworld.neocities.org/gameobjects/Tree1.png';
+const imgTree2 = new Image(); imgTree2.src = 'https://stickworld.neocities.org/gameobjects/Tree2.png';
 function resize(){c.width=innerWidth;c.height=innerHeight;}
 resize(); window.addEventListener('resize',resize);
 
@@ -460,6 +464,21 @@ function drawSky(){
 }
 function cloud(x,y){ctx.beginPath();ctx.arc(x,y,28,0,Math.PI*2);ctx.arc(x+30,y-10,22,0,Math.PI*2);ctx.arc(x+60,y,25,0,Math.PI*2);ctx.fill();}
 
+const TREES = [
+  {x:100, img:'tree1'}, {x:280, img:'tree2'}, {x:500, img:'tree1'},
+  {x:750, img:'tree2'}, {x:1000, img:'tree1'}, {x:1250, img:'tree2'},
+  {x:1500, img:'tree1'}, {x:1750, img:'tree2'}, {x:1950, img:'tree1'}
+];
+
+const PLATFORMS = [
+  {x:350, y:380, w:120, img:'platform1'},
+  {x:700, y:330, w:140, img:'platform2'},
+  {x:1050, y:370, w:110, img:'platform1'},
+  {x:1350, y:310, w:150, img:'platform2'},
+  {x:1650, y:360, w:130, img:'platform1'},
+  {x:1850, y:290, w:100, img:'platform2'}
+];
+
 function drawWorld(){
   const ox=-camX;
   const g=ctx.createLinearGradient(0,GROUND_Y,0,GROUND_Y+120);
@@ -467,19 +486,24 @@ function drawWorld(){
   ctx.fillStyle=g;ctx.fillRect(ox,GROUND_Y,WORLD_W,c.height);
   ctx.strokeStyle='#6fd46f';ctx.lineWidth=3;
   ctx.beginPath();ctx.moveTo(ox,GROUND_Y);ctx.lineTo(ox+WORLD_W,GROUND_Y);ctx.stroke();
-  [100,280,500,750,1000,1250,1500,1750,1950].forEach(tx=>{
-    const x=tx+ox;
-    ctx.fillStyle='#6b3a1f';ctx.fillRect(x-8,GROUND_Y-55,16,60);
-    ctx.fillStyle='#2ecc71';ctx.beginPath();ctx.arc(x,GROUND_Y-80,34,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#27ae60';ctx.beginPath();ctx.arc(x-10,GROUND_Y-100,22,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.arc(x+12,GROUND_Y-95,20,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#1e8449';ctx.beginPath();ctx.arc(x,GROUND_Y-110,16,0,Math.PI*2);ctx.fill();
+
+  TREES.forEach(t => {
+    const x = t.x + ox;
+    const img = t.img === 'tree1' ? imgTree1 : imgTree2;
+    if(img.complete && img.naturalWidth > 0) {
+      ctx.drawImage(img, x-40, GROUND_Y-110, 80, 110);
+    }
   });
-  [{x:350,y:380,w:120},{x:700,y:330,w:140},{x:1050,y:370,w:110},{x:1350,y:310,w:150},{x:1650,y:360,w:130},{x:1850,y:290,w:100}].forEach(pl=>{
-    const px=pl.x+ox;
-    ctx.fillStyle='#8b5e3c';ctx.fillRect(px,pl.y+12,pl.w,16);
-    ctx.fillStyle='#5dbb5d';ctx.fillRect(px,pl.y,pl.w,14);
-    ctx.strokeStyle='#4cae4c';ctx.lineWidth=1.5;ctx.strokeRect(px,pl.y,pl.w,14);
+
+  PLATFORMS.forEach(pl => {
+    const px = pl.x + ox;
+    const img = pl.img === 'platform1' ? imgPlatform1 : imgPlatform2;
+    if(img.complete && img.naturalWidth > 0) {
+      ctx.drawImage(img, px, pl.y, pl.w, 30);
+    } else {
+      ctx.fillStyle='#8b5e3c';ctx.fillRect(px, pl.y+12, pl.w, 16);
+      ctx.fillStyle='#5dbb5d';ctx.fillRect(px, pl.y, pl.w, 14);
+    }
   });
 }
 
