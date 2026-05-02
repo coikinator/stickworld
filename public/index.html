@@ -533,7 +533,7 @@ function showVersionScreen(appV, currentV) {
             <p style="font-size:13px;opacity:0.6;margin-bottom:20px;">
                 ${isOld ? 'Your version is too old. Please update!' : 'Your version is too new (lol)'}
             </p>
-            <a href="https://stickworld.onrender.com/download.html" style="
+            <a href="#" onclick="window.Android && window.Android.openBrowser ? window.Android.openBrowser('https://stickworld.onrender.com/download.html') : window.open('https://stickworld.onrender.com/download.html')" style="...">
                 display:block;padding:12px;border-radius:12px;
                 background:linear-gradient(180deg,#2a6adf,#1540a0);
                 color:#d0e8ff;text-decoration:none;
