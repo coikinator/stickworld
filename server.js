@@ -203,33 +203,34 @@ io.on('connection', (socket) => {
 socket.on('pauseTimer', () => {
   const p = players[socket.id];
   if (p) {
-    p.inGame = false; // Timer stoppt sofort
+    p.inGame = false; 
   }
 });
 
-socket.on('join', async (data) => {
+sosocket.on('join', async (data) => {
+  const user = await User.findOne({ username: data.username });
 
-const user = await User.findOne({ username: data.username });
+  activeSessions[data.username] = socket.id;
 
-activeSessions[data.username] = socket.id;
+  const now = Date.now(); 
 
-players[socket.id] = {
-  id: socket.id,
-  username: data.username,
-  x: 200 + Math.random() * 400,
-  y: GROUND,
-  vx:0, vy:0,
-  onGround:true,
-  anim:0,
-  facing:1,
-  moving:false,
-  coins: user?.coins || 0,
-  lastReward: user?.lastReward ?? Date.now(),
-  timeLeft: Math.max(0, 600000 - (Date.now() - (user?.lastReward ?? Date.now()))),
-  inGame: data.page === 'game'
-};
+  players[socket.id] = {
+    id: socket.id,
+    username: data.username,
+    x: 200 + Math.random() * 400,
+    y: GROUND,
+    vx: 0, vy: 0,
+    onGround: true,
+    anim: 0,
+    facing: 1,
+    moving: false,
+    coins: user?.coins || 0,
+    lastReward: now,     
+    timeLeft: 600000,    
+    inGame: data.page === 'game'
+  };
 
-io.emit('players', players);
+  io.emit('players', players);
 });
 
   socket.on('input', (data) => {
@@ -272,7 +273,6 @@ socket.on('disconnect', async () => {
       { username: p.username },
       { $set: {
         coins: p.coins,
-        lastReward: p.lastReward 
       }}
     );
   }
