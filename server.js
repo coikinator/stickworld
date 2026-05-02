@@ -130,6 +130,16 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+app.get('/api/version', async (req, res) => {
+  try {
+    const r = await fetch('https://stickworld.neocities.org/version/currentversion.json');
+    const data = await r.json();
+    res.json(data);
+  } catch(e) {
+    res.status(500).json({ error: 'version fetch failed' });
+  }
+});
+
 app.get('/api/updates', async (req, res) => {
   const logs = [];
   let i = 1;
