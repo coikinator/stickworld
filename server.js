@@ -207,7 +207,7 @@ socket.on('pauseTimer', () => {
   }
 });
 
-sosocket.on('join', async (data) => {
+socket.on('join', async (data) => {
   const user = await User.findOne({ username: data.username });
 
   activeSessions[data.username] = socket.id;
