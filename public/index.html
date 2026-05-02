@@ -64,6 +64,20 @@
 .offline-card button:hover{
   background:rgba(91,163,245,0.2);
 }
+
+  .download-btn {
+  position:absolute; right:20px; bottom:30px;
+  background:rgba(91,163,245,.1);
+  border:1px solid rgba(91,163,245,.2);
+  border-radius:10px;
+  color:var(--accent);
+  font-family:'Rajdhani',sans-serif;
+  font-size:13px; letter-spacing:1px;
+  padding:7px 14px; cursor:pointer;
+  text-decoration:none; display:none;
+  align-items:center; gap:6px;
+  transition:all .2s;
+}
   
 .logo-icon{
   width:70px;
@@ -316,7 +330,7 @@ body::before{
 <div class="header">
     <a class="fanart-btn" href="https://stickworld.onrender.com/fanart.html">← FANART</a>
     <a class="updatelogs-btn" href="https://stickworld.onrender.com/updatelogs.html">← UPDATELOGS</a>
-  <a id="downloadBtn" style="display:none" href="DEIN_APK_LINK">Download App</a>
+<a id="downloadBtn" class="download-btn" href="https://stickworld.onrender.com/download.html" download>⬇ DOWNLOAD APP</a>
   
 <canvas class="bg-stick" id="bgCanvas"></canvas>
 
@@ -462,9 +476,8 @@ document.addEventListener("click", () => {
   }
 }, { once: true });  
 
-  if (!document.cookie.includes('isApp=true')) {
-    // Button anzeigen
-    document.getElementById('downloadBtn').style.display = 'block';
+if (!document.cookie.includes('isApp=true')) {
+    document.getElementById('downloadBtn').style.display = 'inline-flex';
 }
 
 function animPreview() {
