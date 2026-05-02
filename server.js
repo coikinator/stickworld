@@ -208,6 +208,14 @@ const GRAVITY  = 0.7;
 const FRICTION = 0.82;
 const MOVE_SPEED = 7;
 const JUMP_FORCE = -15;
+const PLATFORMS = [
+  {x:350, y:380, w:120},
+  {x:700, y:330, w:140},
+  {x:1050, y:370, w:110},
+  {x:1350, y:310, w:150},
+  {x:1650, y:360, w:130},
+  {x:1850, y:290, w:100}
+];
 
 io.on('connection', (socket) => {
 
@@ -310,6 +318,17 @@ setInterval(() => {
     p.x += p.vx;
     p.y += p.vy;
     if (p.y >= GROUND) { p.y = GROUND; p.vy = 0; p.onGround = true; }
+else {
+  let onPlat = false;
+  for (const pl of PLATFORMS) {
+    if (p.vy >= 0 &&
+        p.x > pl.x && p.x < pl.x + pl.w &&
+        p.y <= pl.y + 10 && p.y + p.vy >= pl.y) {
+      p.y = pl.y; p.vy = 0; p.onGround = true; onPlat = true; break;
+    }
+  }
+  if (!onPlat && p.y < GROUND) p.onGround = false;
+}
     if (p.x < 20)    { p.x = 20;    p.vx = 0; }
     if (p.x > 2000)  { p.x = 2000;  p.vx = 0; }
     if (Math.abs(p.vx) > 0.5) p.anim += 0.18 * Math.abs(p.vx) / MOVE_SPEED;
