@@ -172,6 +172,17 @@ app.get('/api/emojis', async (req, res) => {
   }
 });
 
+app.get('/api/check-session', (req, res) => {
+  try {
+    const token = (req.headers.authorization || '').replace('Bearer ', '');
+    const { username } = jwt.verify(token, JWT_SECRET);
+    const alreadyInGame = !!activeSessions[username];
+    res.json({ alreadyInGame });
+  } catch(e) {
+    res.status(401).json({ error: 'Unauthorized' });
+  }
+});
+
 app.post('/api/kick-session', (req, res) => {
   try {
     const token = (req.headers.authorization || '').replace('Bearer ', '');
