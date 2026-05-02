@@ -476,7 +476,7 @@ document.addEventListener("click", () => {
   }
 }, { once: true });  
 
-if (!navigator.userAgent.includes('StickWorldApp')) {
+if (!navigator.userAgent.includes('StickWorldApp') && !navigator.userAgent.includes('Electron')) {
     document.getElementById('downloadBtn').style.display = 'inline-flex';
 }
 
