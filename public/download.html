@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>StickWorld — Download</title>
+<link rel="icon" type="image/png" href="https://stickworld.neocities.org/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --sky1:#1a2a4a;--sky2:#0d1520;
+  --glass:rgba(255,255,255,0.07);
+  --border:rgba(100,180,255,0.18);
+  --accent:#5ba3f5;--accent2:#ff6b6b;
+  --text:#c8daf8;--muted:#4a6a9a;
+  --green:#2ecc71;--orange:#e67e22;
+}
+html,body{height:100%;overflow:hidden;}
+body{
+  font-family:'Rajdhani',sans-serif;
+  background:linear-gradient(160deg,var(--sky1) 0%,var(--sky2) 100%);
+  color:var(--text);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;
+}
+
+/* Stars bg */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:
+    radial-gradient(1px 1px at 10% 15%,rgba(255,255,255,.6) 0%,transparent 100%),
+    radial-gradient(1px 1px at 30% 40%,rgba(255,255,255,.4) 0%,transparent 100%),
+    radial-gradient(1.5px 1.5px at 55% 20%,rgba(255,255,255,.5) 0%,transparent 100%),
+    radial-gradient(1px 1px at 75% 60%,rgba(255,255,255,.3) 0%,transparent 100%),
+    radial-gradient(1px 1px at 90% 10%,rgba(255,255,255,.5) 0%,transparent 100%),
+    radial-gradient(1px 1px at 20% 80%,rgba(255,255,255,.3) 0%,transparent 100%),
+    radial-gradient(1px 1px at 65% 85%,rgba(255,255,255,.4) 0%,transparent 100%),
+    radial-gradient(1px 1px at 42% 70%,rgba(255,255,255,.3) 0%,transparent 100%);
+  pointer-events:none;z-index:0;
+}
+
+/* Nav buttons */
+.back-btn{
+  position:absolute;left:20px;top:30px;
+  background:rgba(91,163,245,.1);
+  border:1px solid rgba(91,163,245,.2);
+  border-radius:10px;
+  color:var(--accent);
+  font-family:'Rajdhani',sans-serif;
+  font-size:13px;letter-spacing:1px;
+  padding:7px 14px;cursor:pointer;
+  text-decoration:none;display:inline-flex;align-items:center;gap:6px;
+  transition:all .2s;z-index:10;
+}
+.back-btn:hover{background:rgba(91,163,245,.2);}
+
+.container{
+  position:relative;z-index:1;
+  width:min(480px,92vw);
+  display:flex;flex-direction:column;align-items:center;gap:0;
+}
+
+/* Logo */
+.logo-icon{
+  width:64px;height:64px;
+  margin:0 auto 14px;
+  background:url("https://stickworld.neocities.org/favicon.png") center/cover no-repeat;
+  border-radius:16px;
+  box-shadow:0 0 25px rgba(91,163,245,.6),0 0 60px rgba(91,163,245,.2);
+}
+.logo-wrap{text-align:center;margin-bottom:28px;}
+.logo{
+  font-family:'Orbitron',monospace;
+  font-size:clamp(28px,7vw,44px);
+  font-weight:800;letter-spacing:6px;color:#fff;
+  text-shadow:0 0 40px rgba(91,163,245,.6),0 0 80px rgba(91,163,245,.2);
+  line-height:1;
+}
+.logo span{color:var(--accent2);}
+.tagline{
+  font-size:clamp(11px,2.5vw,13px);color:var(--muted);
+  letter-spacing:3px;margin-top:8px;text-transform:uppercase;
+}
+
+/* Card */
+.card{
+  width:100%;
+  background:linear-gradient(135deg,rgba(30,50,90,.85),rgba(15,28,60,.9));
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:28px;
+  box-shadow:0 8px 40px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.06);
+  backdrop-filter:blur(20px);
+}
+.card-title{
+  font-family:'Orbitron',monospace;
+  font-size:13px;letter-spacing:3px;color:var(--muted);
+  text-align:center;margin-bottom:24px;text-transform:uppercase;
+}
+
+/* Platform choice row */
+.platform-row{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;
+  margin-bottom:20px;
+}
+
+.platform-card{
+  padding:20px 14px;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--border);
+  border-radius:14px;
+  text-align:center;cursor:pointer;
+  transition:all .25s;
+  position:relative;overflow:hidden;
+}
+.platform-card::before{
+  content:'';position:absolute;inset:0;
+  opacity:0;transition:opacity .25s;
+}
+.platform-card.android::before{background:radial-gradient(circle at 50% 0%,rgba(46,204,113,.1),transparent 70%);}
+.platform-card.windows::before{background:radial-gradient(circle at 50% 0%,rgba(91,163,245,.1),transparent 70%);}
+
+.platform-card:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.3);}
+.platform-card:hover::before{opacity:1;}
+.platform-card.android:hover{border-color:rgba(46,204,113,.4);}
+.platform-card.windows:hover{border-color:rgba(91,163,245,.4);}
+
+.platform-card.selected.android{
+  border-color:rgba(46,204,113,.6);
+  background:rgba(46,204,113,.08);
+  box-shadow:0 0 20px rgba(46,204,113,.15);
+}
+.platform-card.selected.windows{
+  border-color:rgba(91,163,245,.6);
+  background:rgba(91,163,245,.08);
+  box-shadow:0 0 20px rgba(91,163,245,.15);
+}
+
+.platform-icon{
+  font-size:34px;margin-bottom:10px;
+  display:block;line-height:1;
+}
+
+.platform-img{
+  width:52px;height:52px;object-fit:contain;
+  margin:0 auto 10px;display:block;
+  filter:drop-shadow(0 0 8px rgba(255,255,255,0.15));
+  transition:filter .25s,transform .25s;
+}
+.platform-card:hover .platform-img{
+  filter:drop-shadow(0 0 12px rgba(255,255,255,0.3));
+  transform:scale(1.05);
+}
+
+.platform-name{
+  font-family:'Orbitron',monospace;
+  font-size:12px;letter-spacing:2px;color:#fff;
+  margin-bottom:4px;
+}
+.platform-sub{font-size:11px;color:var(--muted);}
+
+/* Download button area */
+.dl-area{
+  overflow:hidden;
+  max-height:0;
+  transition:max-height .4s cubic-bezier(.4,0,.2,1), opacity .3s;
+  opacity:0;
+}
+.dl-area.show{max-height:200px;opacity:1;}
+
+.btn-download{
+  width:100%;padding:14px;
+  border-radius:12px;
+  font-family:'Orbitron',monospace;
+  font-size:14px;letter-spacing:2px;
+  cursor:pointer;
+  transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  text-decoration:none;border:none;
+}
+.btn-download.android{
+  background:linear-gradient(180deg,#27ae60 0%,#1a7a40 100%);
+  border:1px solid rgba(46,204,113,.4);
+  color:#d4f5e2;
+  box-shadow:0 4px 20px rgba(46,204,113,.25),inset 0 1px 0 rgba(255,255,255,.12);
+}
+.btn-download.android:hover{background:linear-gradient(180deg,#2ecc71,#219a52);transform:translateY(-1px);}
+.btn-download.windows{
+  background:linear-gradient(180deg,#2a6adf 0%,#1540a0 100%);
+  border:1px solid rgba(91,163,245,.4);
+  color:#d0e8ff;
+  box-shadow:0 4px 20px rgba(40,100,255,.3),inset 0 1px 0 rgba(255,255,255,.12);
+}
+.btn-download.windows:hover{background:linear-gradient(180deg,#3a7aef,#2050b0);transform:translateY(-1px);}
+.btn-download:active{transform:translateY(0);}
+
+.dl-info{
+  margin-top:10px;
+  font-size:11px;color:var(--muted);
+  text-align:center;letter-spacing:1px;
+  padding:10px;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:10px;
+}
+.dl-info span{color:var(--accent);font-weight:600;}
+
+/* Version badge */
+.version-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(91,163,245,.08);
+  border:1px solid rgba(91,163,245,.15);
+  border-radius:20px;
+  padding:4px 12px;
+  font-size:11px;color:var(--muted);
+  letter-spacing:1px;margin-bottom:20px;
+}
+.version-badge .dot{
+  width:6px;height:6px;background:var(--green);
+  border-radius:50%;
+  box-shadow:0 0 6px var(--green);
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+
+.footer{margin-top:18px;font-size:11px;color:var(--muted);text-align:center;letter-spacing:1px;}
+</style>
+</head>
+<body>
+
+<a class="back-btn" href="https://stickworld.onrender.com/">← BACK</a>
+
+<div class="container">
+  <div class="logo-wrap">
+    <div class="logo-icon"></div>
+    <div class="logo">STICK<span>WORLD</span></div>
+    <div class="tagline">Download the App</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Choose Your Platform</div>
+
+    <div style="text-align:center;margin-bottom:20px;">
+      <div class="version-badge">
+        <div class="dot"></div>
+        Latest Version Available
+      </div>
+    </div>
+
+    <div class="platform-row">
+
+      <!-- Android -->
+      <div class="platform-card android" id="btnAndroid" onclick="selectPlatform('android')">
+        <img src="https://stickworld.neocities.org/icons/Android.png" class="platform-img" alt="Android">
+        <div class="platform-name">ANDROID</div>
+        <div class="platform-sub">.APK File</div>
+      </div>
+
+      <!-- Windows -->
+      <div class="platform-card windows" id="btnWindows" onclick="selectPlatform('windows')">
+        <img src="https://stickworld.neocities.org/icons/Windows.png" class="platform-img" alt="Windows">
+        <div class="platform-name">WINDOWS</div>
+        <div class="platform-sub">.7z File</div>
+      </div>
+
+    </div>
+
+    <!-- Download area (revealed after selection) -->
+    <div class="dl-area" id="dlArea">
+      <a class="btn-download" id="dlBtn" href="#" target="_blank">
+        <img id="dlIcon" src="" style="width:22px;height:22px;object-fit:contain;">
+        <span id="dlText">DOWNLOAD</span>
+      </a>
+      <div class="dl-info" id="dlInfo">Loading...</div>
+    </div>
+
+  </div>
+
+  <div class="footer">Free to play · © coikinator / Sandro Evrard — All rights reserved</div>
+</div>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────────────────────────────
+// Replace these URLs with your actual download links
+const DOWNLOADS = {
+  android: {
+    url: 'https://stickworld.onrender.com/downloads/StickworldV.0.apk',
+    label: 'DOWNLOAD FOR ANDROID',
+    icon: 'https://stickworld.neocities.org/icons/Android.png',
+    info: 'File: <span>StickWorldV.0.apk</span> · Requires Android 6.0+',
+  },
+  windows: {
+    url: 'https://stickworld.onrender.com/downloads/StickworldV.0.7z',
+    label: 'DOWNLOAD FOR WINDOWS',
+    icon: 'https://stickworld.neocities.org/icons/Windows.png',
+    info: 'File: <span>StickworldV.0.7z</span> · Requires Windows 10+',
+  }
+};
+// ─────────────────────────────────────────────────────────────────────────────
+
+let selected = null;
+
+function selectPlatform(platform) {
+  // deselect old
+  document.getElementById('btnAndroid').classList.remove('selected');
+  document.getElementById('btnWindows').classList.remove('selected');
+
+  // select new
+  document.getElementById('btn' + platform.charAt(0).toUpperCase() + platform.slice(1)).classList.add('selected');
+  selected = platform;
+
+  // update button
+  const cfg = DOWNLOADS[platform];
+  const dlBtn  = document.getElementById('dlBtn');
+  const dlArea = document.getElementById('dlArea');
+
+  dlBtn.href      = cfg.url;
+  dlBtn.className = 'btn-download ' + platform;
+  document.getElementById('dlIcon').src = cfg.icon;
+  document.getElementById('dlText').textContent = cfg.label;
+  document.getElementById('dlInfo').innerHTML   = cfg.info;
+
+  dlArea.classList.add('show');
+}
+
+// Prevent context menu & devtools shortcuts (matching the original)
+document.addEventListener("contextmenu", e => e.preventDefault());
+document.addEventListener("keydown", function(e) {
+  if (e.ctrlKey && (e.key === "u" || e.key === "s" || e.key === "U" || e.key === "S")) {
+    e.preventDefault(); return false;
+  }
+  if (e.key === "F12") { e.preventDefault(); return false; }
+});
+</script>
+</body>
+</html>
