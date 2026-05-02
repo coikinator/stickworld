@@ -447,6 +447,13 @@ const imgTree2 = new Image(); imgTree2.src = 'https://stickworld.neocities.org/g
 function resize(){c.width=innerWidth;c.height=innerHeight;}
 resize(); window.addEventListener('resize',resize);
 
+const cloudImgs = [];
+for(let i = 1; i <= 7; i++) {
+  const img = new Image();
+  img.src = `https://stickworld.neocities.org/gameobjects/Cloud${i}.png`;
+  cloudImgs.push(img);
+}
+  
 const GROUND_Y=500, WORLD_W=2020;
 const COLORS=['#2980b9','#e74c3c','#27ae60','#8e44ad','#e67e22','#16a085','#c0392b','#f39c12'];
 const playerColors={}; let colorIdx=0;
@@ -456,13 +463,25 @@ function drawSky(){
   const g=ctx.createLinearGradient(0,0,0,c.height);
   g.addColorStop(0,'#87ceeb');g.addColorStop(1,'#dff6ff');
   ctx.fillStyle=g;ctx.fillRect(0,0,c.width,c.height);
-  ctx.fillStyle='rgba(255,255,255,0.75)';
-  [200,500,900,1300,1700].forEach(bx=>{
-    const rx=((bx-camX*0.3)%(WORLD_W+400))-100;
-    cloud(rx,80);cloud(rx+30,130);
+
+  const cloudPositions = [
+    {bx:200, y:60, size:120, ci:0},
+    {bx:500, y:90, size:100, ci:1},
+    {bx:900, y:50, size:140, ci:2},
+    {bx:1300, y:80, size:110, ci:3},
+    {bx:1700, y:65, size:130, ci:4},
+    {bx:400, y:130, size:90, ci:5},
+    {bx:1100, y:110, size:105, ci:6},
+  ];
+
+  cloudPositions.forEach(cl => {
+    const rx = ((cl.bx - camX * 0.3) % (WORLD_W + 400)) - 100;
+    const img = cloudImgs[cl.ci];
+    if(img.complete && img.naturalWidth > 0) {
+      ctx.drawImage(img, rx, cl.y, cl.size, cl.size * 0.6);
+    }
   });
 }
-function cloud(x,y){ctx.beginPath();ctx.arc(x,y,28,0,Math.PI*2);ctx.arc(x+30,y-10,22,0,Math.PI*2);ctx.arc(x+60,y,25,0,Math.PI*2);ctx.fill();}
 
 const TREES = [
   {x:100, img:'tree1'}, {x:280, img:'tree2'}, {x:500, img:'tree1'},
@@ -570,7 +589,7 @@ function drawBubbles(p,px,py){
     ctx.globalAlpha=1;
   });
 }
-
+  
 function drawStickman(p){
   const ox=-camX,px=p.x+ox,py=p.y;
   const t=p.anim||0,facing=p.facing||1;
