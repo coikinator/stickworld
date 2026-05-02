@@ -316,6 +316,7 @@ body::before{
 <div class="header">
     <a class="fanart-btn" href="https://stickworld.onrender.com/fanart.html">← FANART</a>
     <a class="updatelogs-btn" href="https://stickworld.onrender.com/updatelogs.html">← UPDATELOGS</a>
+  <a id="downloadBtn" style="display:none" href="DEIN_APK_LINK">Download App</a>
   
 <canvas class="bg-stick" id="bgCanvas"></canvas>
 
@@ -460,6 +461,11 @@ document.addEventListener("click", () => {
     music.play().catch(() => {});
   }
 }, { once: true });  
+
+  if (!document.cookie.includes('isApp=true')) {
+    // Button anzeigen
+    document.getElementById('downloadBtn').style.display = 'block';
+}
 
 function animPreview() {
   pctx.clearRect(0,0,pw,ph);
