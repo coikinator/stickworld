@@ -541,9 +541,7 @@ div.innerHTML = `
     `;
     document.body.appendChild(div);
 }
-window.addEventListener("load", () => {
-   setTimeout(checkVersion, 1500);
-});
+checkVersion();
 
 function animPreview() {
   pctx.clearRect(0,0,pw,ph);
