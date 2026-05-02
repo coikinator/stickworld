@@ -476,7 +476,7 @@ document.addEventListener("click", () => {
   }
 }, { once: true });  
 
-if (!document.cookie.includes('isApp=true')) {
+if (!navigator.userAgent.includes('StickWorldApp')) {
     document.getElementById('downloadBtn').style.display = 'inline-flex';
 }
 
