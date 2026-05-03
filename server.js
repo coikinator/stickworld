@@ -101,6 +101,7 @@ app.get('/proxy', async (req, res) => {
 });
 
 app.use('/downloads', (req, res, next) => {
+  res.setHeader('Content-Encoding', 'identity');
   if (req.path.endsWith('.msix')) {
     res.setHeader('Content-Type', 'application/msix');
     res.setHeader('Content-Disposition', 'attachment');
