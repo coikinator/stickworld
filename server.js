@@ -100,6 +100,20 @@ app.get('/proxy', async (req, res) => {
   }
 });
 
+app.use('/downloads', (req, res, next) => {
+  if (req.path.endsWith('.msix')) {
+    res.setHeader('Content-Type', 'application/msix');
+    res.setHeader('Content-Disposition', 'attachment');
+  } else if (req.path.endsWith('.apk')) {
+    res.setHeader('Content-Type', 'application/vnd.android.package-archive');
+    res.setHeader('Content-Disposition', 'attachment');
+  } else if (req.path.endsWith('.zip')) {
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', 'attachment');
+  }
+  next();
+});
+
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 // ── AUTH
