@@ -24,8 +24,6 @@ body{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   min-height:100vh;
 }
-
-/* Stars bg */
 body::before{
   content:'';position:fixed;inset:0;
   background-image:
@@ -39,8 +37,6 @@ body::before{
     radial-gradient(1px 1px at 42% 70%,rgba(255,255,255,.3) 0%,transparent 100%);
   pointer-events:none;z-index:0;
 }
-
-/* Nav buttons */
 .back-btn{
   position:absolute;left:20px;top:30px;
   background:rgba(91,163,245,.1);
@@ -54,14 +50,11 @@ body::before{
   transition:all .2s;z-index:10;
 }
 .back-btn:hover{background:rgba(91,163,245,.2);}
-
 .container{
   position:relative;z-index:1;
   width:min(480px,92vw);
   display:flex;flex-direction:column;align-items:center;gap:0;
 }
-
-/* Logo */
 .logo-icon{
   width:64px;height:64px;
   margin:0 auto 14px;
@@ -82,8 +75,6 @@ body::before{
   font-size:clamp(11px,2.5vw,13px);color:var(--muted);
   letter-spacing:3px;margin-top:8px;text-transform:uppercase;
 }
-
-/* Card */
 .card{
   width:100%;
   background:linear-gradient(135deg,rgba(30,50,90,.85),rgba(15,28,60,.9));
@@ -98,13 +89,10 @@ body::before{
   font-size:13px;letter-spacing:3px;color:var(--muted);
   text-align:center;margin-bottom:24px;text-transform:uppercase;
 }
-
-/* Platform choice row */
 .platform-row{
   display:grid;grid-template-columns:1fr 1fr;gap:12px;
   margin-bottom:20px;
 }
-
 .platform-card{
   padding:20px 14px;
   background:rgba(255,255,255,.04);
@@ -119,36 +107,21 @@ body::before{
   opacity:0;transition:opacity .25s;
 }
 .platform-card.android::before{background:radial-gradient(circle at 50% 0%,rgba(46,204,113,.1),transparent 70%);}
-.platform-card.windows::before{background:radial-gradient(circle at 50% 0%,rgba(91,163,245,.1),transparent 70%);}
 .platform-card.windows2::before{background:radial-gradient(circle at 50% 0%,rgba(255,140,0,.1),transparent 70%);}
-
 .platform-card:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.3);}
 .platform-card:hover::before{opacity:1;}
 .platform-card.android:hover{border-color:rgba(46,204,113,.4);}
-.platform-card.windows:hover{border-color:rgba(91,163,245,.4);}
 .platform-card.windows2:hover{border-color:rgba(255,140,0,.4);}
-
 .platform-card.selected.android{
   border-color:rgba(46,204,113,.6);
   background:rgba(46,204,113,.08);
   box-shadow:0 0 20px rgba(46,204,113,.15);
-}
-.platform-card.selected.windows{
-  border-color:rgba(91,163,245,.6);
-  background:rgba(91,163,245,.08);
-  box-shadow:0 0 20px rgba(91,163,245,.15);
 }
 .platform-card.selected.windows2{
   border-color:rgba(255,140,0,.6);
   background:rgba(255,140,0,.08);
   box-shadow:0 0 20px rgba(255,140,0,.15);
 }
-
-.platform-icon{
-  font-size:34px;margin-bottom:10px;
-  display:block;line-height:1;
-}
-
 .platform-img{
   width:52px;height:52px;object-fit:contain;
   margin:0 auto 10px;display:block;
@@ -159,15 +132,12 @@ body::before{
   filter:drop-shadow(0 0 12px rgba(255,255,255,0.3));
   transform:scale(1.05);
 }
-
 .platform-name{
   font-family:'Orbitron',monospace;
   font-size:12px;letter-spacing:2px;color:#fff;
   margin-bottom:4px;
 }
 .platform-sub{font-size:11px;color:var(--muted);}
-
-/* Download button area */
 .dl-area{
   overflow:hidden;
   max-height:0;
@@ -175,7 +145,6 @@ body::before{
   opacity:0;
 }
 .dl-area.show{max-height:200px;opacity:1;}
-
 .btn-download{
   width:100%;padding:14px;
   border-radius:12px;
@@ -193,22 +162,14 @@ body::before{
   box-shadow:0 4px 20px rgba(46,204,113,.25),inset 0 1px 0 rgba(255,255,255,.12);
 }
 .btn-download.android:hover{background:linear-gradient(180deg,#2ecc71,#219a52);transform:translateY(-1px);}
-.btn-download.windows{
-  background:linear-gradient(180deg,#2a6adf 0%,#1540a0 100%);
-  border:1px solid rgba(91,163,245,.4);
-  color:#d0e8ff;
-  box-shadow:0 4px 20px rgba(40,100,255,.3),inset 0 1px 0 rgba(255,255,255,.12);
-}
-.btn-download.windows:hover{background:linear-gradient(180deg,#3a7aef,#2050b0);transform:translateY(-1px);}
 .btn-download.windows2{
   background:linear-gradient(180deg,#ff7700 0%,#cc4400 100%);
   border:1px solid rgba(255,160,50,.4);
   color:#ffe8cc;
-box-shadow:0 4px 20px rgba(255,100,0,.3),inset 0 1px 0 rgba(255,140,0,.12);
+  box-shadow:0 4px 20px rgba(255,100,0,.3),inset 0 1px 0 rgba(255,140,0,.12);
 }
 .btn-download.windows2:hover{background:linear-gradient(180deg,#ff8c00,#cc5500);transform:translateY(-1px);}
 .btn-download:active{transform:translateY(0);}
-
 .dl-info{
   margin-top:10px;
   font-size:11px;color:var(--muted);
@@ -219,8 +180,6 @@ box-shadow:0 4px 20px rgba(255,100,0,.3),inset 0 1px 0 rgba(255,140,0,.12);
   border-radius:10px;
 }
 .dl-info span{color:var(--accent);font-weight:600;}
-
-/* Version badge */
 .version-badge{
   display:inline-flex;align-items:center;gap:6px;
   background:rgba(91,163,245,.08);
@@ -237,7 +196,6 @@ box-shadow:0 4px 20px rgba(255,100,0,.3),inset 0 1px 0 rgba(255,140,0,.12);
   animation:pulse 2s infinite;
 }
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
-
 .footer{margin-top:18px;font-size:11px;color:var(--muted);text-align:center;letter-spacing:1px;}
 </style>
 </head>
@@ -245,7 +203,7 @@ box-shadow:0 4px 20px rgba(255,100,0,.3),inset 0 1px 0 rgba(255,140,0,.12);
 
 <audio id="bgMusic" autoplay loop>
   <source src="https://stickworld.onrender.com/music/StickChase.mp3" type="audio/mpeg">
-</audio>  
+</audio>
 
 <a class="back-btn" href="https://stickworld.onrender.com/">← BACK</a>
 
@@ -267,26 +225,18 @@ box-shadow:0 4px 20px rgba(255,100,0,.3),inset 0 1px 0 rgba(255,140,0,.12);
     </div>
 
     <div class="platform-row">
-
-      <!-- Android -->
       <div class="platform-card android" id="btnAndroid" onclick="selectPlatform('android')">
         <img src="https://stickworld.neocities.org/icons/Android.png" class="platform-img" alt="Android">
         <div class="platform-name">ANDROID</div>
         <div class="platform-sub">.APK File</div>
       </div>
-      
-
-
-      <!-- Windows2 -->
       <div class="platform-card windows2" id="btnWindows2" onclick="selectPlatform('windows2')">
-        <img src="https://stickworld.neocities.org/icons/WindowsOrange.png" class="platform-img" alt="Windows2">
+        <img src="https://stickworld.neocities.org/icons/WindowsOrange.png" class="platform-img" alt="Windows">
         <div class="platform-name">WINDOWS</div>
         <div class="platform-sub">.zip File</div>
       </div>
-
     </div>
 
-    <!-- Download area (revealed after selection) -->
     <div class="dl-area" id="dlArea">
       <a class="btn-download" id="dlBtn" href="#" target="_blank">
         <img id="dlIcon" src="" style="width:22px;height:22px;object-fit:contain;">
@@ -294,45 +244,33 @@ box-shadow:0 4px 20px rgba(255,100,0,.3),inset 0 1px 0 rgba(255,140,0,.12);
       </a>
       <div class="dl-info" id="dlInfo">Loading...</div>
     </div>
-
   </div>
 
   <div class="footer">Free to play · © coikinator / Sandro Evrard — All rights reserved</div>
 </div>
 
 <script>
-// ─── CONFIG ───────────────────────────────────────────────────────────────────
-// Replace these URLs with your actual download links
 const DOWNLOADS = {
   android: {
-    url: 'https://download848.mediafire.com/vc6i9n6r7magwDx0KjC9Q0vTgy-OLTyh4JiKiXLTtpvS1Q8HX-CEPQG3sU5E74FMCG9s_Ha5qqrWSBr6iTFD0HP_t0Flj9EmAfaudyXE3PFJ7bEFNQBqF3kpEATIj4G-1KUrPMEHTvUlnpqFqxIAgGI2uXQ3tcVY9Cyazlkq3vd1/38mpyzv97dyg726/StickworldV.0.apk',
+    url: 'https://www.mediafire.com/file/38mpyzv97dyg726/StickworldV.0.apk/file',
     label: 'DOWNLOAD FOR ANDROID (APK)',
     icon: 'https://stickworld.neocities.org/icons/Android.png',
     info: 'File: <span>StickWorldV.0.apk</span> · Requires Android 6.0+',
   },
-  //windows: {
-    //url: 'https://stickworld.onrender.com/maybecomingsoon.html',
-    //label: 'DOWNLOAD FOR WINDOWS (MSIX)',
-    //icon: 'https://stickworld.neocities.org/icons/Windows.png',
-    //info: 'File: <span>StickworldV.0.msix</span> · Requires Windows 10+',
-  //},
-    windows2: {
+  windows2: {
     url: 'https://stickworld.onrender.com/downloads/StickworldV.0.zip',
     label: 'DOWNLOAD FOR WINDOWS (ZIP)',
     icon: 'https://stickworld.neocities.org/icons/WindowsOrange.png',
     info: 'File: <span>StickworldV.0.zip</span> · Requires Windows 10+',
   }
 };
-// ─────────────────────────────────────────────────────────────────────────────
 
 let selected = null;
 
 function selectPlatform(platform) {
-  // deselect old
   document.getElementById('btnAndroid').classList.remove('selected');
-  document.getElementById('btnWindows').classList.remove('selected');
+  document.getElementById('btnWindows2').classList.remove('selected');
 
-  // select new
   document.getElementById('btn' + platform.charAt(0).toUpperCase() + platform.slice(1)).classList.add('selected');
   selected = platform;
 
@@ -340,8 +278,7 @@ function selectPlatform(platform) {
     const music = document.getElementById("bgMusic");
     if (music) music.play().catch(()=>{});
   }, { once:true });
-  
-  // update button
+
   const cfg = DOWNLOADS[platform];
   const dlBtn  = document.getElementById('dlBtn');
   const dlArea = document.getElementById('dlArea');
@@ -355,7 +292,6 @@ function selectPlatform(platform) {
   dlArea.classList.add('show');
 }
 
-// Prevent context menu & devtools shortcuts (matching the original)
 document.addEventListener("contextmenu", e => e.preventDefault());
 document.addEventListener("keydown", function(e) {
   if (e.ctrlKey && (e.key === "u" || e.key === "s" || e.key === "U" || e.key === "S")) {
